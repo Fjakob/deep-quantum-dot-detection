@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 def readFiles(dir):
     # extract all .DAT files:
     files = glob.glob(dir + '/*.' + 'DAT')
-    print('\nFound {0:3} files\n'.format(len(files)))
+    print('\nFound {0} files (Arising from {1}x{1} grid)\n'.format(len(files), int(np.sqrt(len(files)))))
 
     # Read files and save into dictionary
     spectra = dict()
@@ -37,8 +37,10 @@ if __name__ == '__main__':
     dir = pwd + '\\sample'
     os.chdir(dir)
 
+    # extract spectras
     wavelengths, spectras = readFiles(dir)
 
+    # plot grid with maximum spectrum peak as colormap
     x = y = np.linspace(-3000,3000,31)
     z = np.array([np.max(spectras[(i,j)]) for j in y for i in x])
     z = z.reshape(31,31)
