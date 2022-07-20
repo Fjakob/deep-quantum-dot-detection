@@ -1,4 +1,1 @@
-eightiRect_X-100E+04_Y240E+04_quantum_dot label bla
-eightiRect_X260E+04_Y-220E+04_quantum_dot label bla
-eightiRect_X-240E+04_Y200E+04_quantum_dot label bla
-eightiRect_X220E+04_Y160E+04_quantum_dot label bla
+

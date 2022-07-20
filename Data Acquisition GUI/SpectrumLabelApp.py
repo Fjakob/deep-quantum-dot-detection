@@ -51,14 +51,19 @@ class App(tk.Tk):
         # 2) Create Labeling Frame
         self.FrameLabel = tk.Frame(master=self)
 
+        # Add user entry
+        self.user_entry = tk.Entry(master=self.FrameLabel)
+        self.user_entry.insert(0, "User name")
+        self.user_entry.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
         # Create Buttons
         submit_btn = tk.Button(master=self.FrameLabel, text="Submit", command=self.submit)
         submit_btn.pack(side=tk.RIGHT, padx=5, pady=5)
 
         reject_btn = tk.Button(master=self.FrameLabel, text="Next", command=self.open_file)
-        reject_btn.pack(side=tk.RIGHT)
+        reject_btn.pack(side=tk.RIGHT, padx=5, pady=5)
 
-        self.FrameLabel.grid(row=0, column=1, padx=5, pady=5)
+        self.FrameLabel.grid(row=0, column=1)
 
 
     def open_file(self):
@@ -71,13 +76,13 @@ class App(tk.Tk):
         with open(random_file) as f:
             # remove file ending and extract infos from file name for spatial coordinates
             self.file_name = "".join(os.path.basename(random_file).split('.')[:-1])
-            # read spectrum
-            lines = f.readlines()
-            spectrum_raw = [line.split()[1] for line in lines]
-            spectrum = np.asarray(spectrum_raw).astype(float)
             # read wavelengths
+            lines = f.readlines()
             w_raw = [line.split()[0] for line in lines]
             w = np.asarray(w_raw).astype(float)
+            # read spectrum
+            spectrum_raw = [line.split()[1] for line in lines]
+            spectrum = np.asarray(spectrum_raw).astype(float)
         self.plot_spectrum(w, spectrum)
 
 
@@ -95,7 +100,8 @@ class App(tk.Tk):
     def submit(self):
         """Save labeled text."""
         with open(self.file_path, mode="a", encoding="utf-8") as output_file:
-            output_file.write(self.file_name + " label bla\n")
+            user = self.user_entry.get()
+            output_file.write(self.file_name + " label bla" + " user " + user + "\n")
         self.open_file()
 
 
