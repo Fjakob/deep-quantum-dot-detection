@@ -3,6 +3,7 @@ import os
 import glob
 import random as rnd
 import numpy as np
+from varname import nameof
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter import ttk
 
 
 class App(tk.Tk):
@@ -36,6 +38,7 @@ class App(tk.Tk):
 
         self.rowconfigure(0, minsize=400, weight=1)
         self.columnconfigure(1, minsize=400, weight=1)
+        padding = {'padx': 5, 'pady': 5}
 
         # 1) Create Figure Frame
         self.FrameFig = tk.Frame(master=self)
@@ -52,16 +55,35 @@ class App(tk.Tk):
         self.FrameLabel = tk.Frame(master=self)
 
         # Add user entry
-        self.user_entry = tk.Entry(master=self.FrameLabel)
+        userFrame = tk.Frame(master=self.FrameLabel)
+        self.user_entry = tk.Entry(master=userFrame)
         self.user_entry.insert(0, "User name")
         self.user_entry.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        # Create Buttons
-        submit_btn = tk.Button(master=self.FrameLabel, text="Submit", command=self.submit)
-        submit_btn.pack(side=tk.RIGHT, padx=5, pady=5)
+        # Create Radio Buttons
+        radioBtnFrame = tk.Frame(master=self.FrameLabel)
+        peak = tk.StringVar(name="peak", value="1")
+        noise = tk.StringVar(name="noise", value="1")
+        whatever = tk.StringVar(name="whatever", value="1")
+        categories = [peak, noise, whatever]
+        labels = ["1", "2", "3", "4", "5"]
+        for idx, category in enumerate(categories):
+            tk.Label(radioBtnFrame, text=category).grid(row=idx,column=0, **padding)
+            for jdx, label in enumerate(labels):
+                ttk.Radiobutton(radioBtnFrame, text=label, variable=category, value=int(label)).grid(row=idx,column=jdx+1, **padding)
+        self.labels = categories
 
-        reject_btn = tk.Button(master=self.FrameLabel, text="Next", command=self.open_file)
-        reject_btn.pack(side=tk.RIGHT, padx=5, pady=5)
+        # Create Buttons
+        btnFrame = tk.Frame(master=self.FrameLabel)
+        submit_btn = tk.Button(master=btnFrame, text="Submit", command=self.submit)
+        submit_btn.pack(side=tk.RIGHT, **padding)
+
+        reject_btn = tk.Button(master=btnFrame, text="Next", command=self.open_file)
+        reject_btn.pack(side=tk.RIGHT, **padding)
+
+        userFrame.grid(row=0, column=0)
+        radioBtnFrame.grid(row=1, column=0)
+        btnFrame.grid(row=2, column=0)
 
         self.FrameLabel.grid(row=0, column=1)
 
@@ -101,7 +123,12 @@ class App(tk.Tk):
         """Save labeled text."""
         with open(self.file_path, mode="a", encoding="utf-8") as output_file:
             user = self.user_entry.get()
-            output_file.write(self.file_name + " label bla" + " user " + user + "\n")
+            output_file.write(self.file_name)
+            output_file.write(" label ")
+            for label in self.labels:
+                output_file.write(label.get() + " ")
+                label.set("1")
+            output_file.write(" user " + user + "\n")
         self.open_file()
 
 

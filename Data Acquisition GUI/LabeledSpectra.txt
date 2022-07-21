@@ -1,1 +1,7 @@
-
+eightiRect_X-280E+04_Y280E+04_quantum_dot label 1 5 1  user fjakob
+eightiRect_X000E+00_Y600E+03_quantum_dot label 1 5 1  user fjakob
+eightiRect_X-800E+03_Y140E+04_quantum_dot label 1 5 1  user fjakob
+eightiRect_X-600E+03_Y800E+03_quantum_dot label 3 5 1  user fjakob
+eightiRect_X-180E+04_Y180E+04_quantum_dot label 1 5 4  user fjakob
+eightiRect_X-300E+04_Y220E+04_quantum_dot label 1 1 4  user fjakob
+eightiRect_X-180E+04_Y-220E+04_quantum_dot label 5 1 1  user fjakob
