@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     # set directories
     pwd = os.getcwd()
-    dir = pwd + '\\sample'
+    dir = pwd + '\\..\\sample'
     os.chdir(dir)
 
     # extract spectras
@@ -46,5 +46,5 @@ if __name__ == '__main__':
     z = z.reshape(31,31)
 
     plt.figure()
-    plt.imshow(z[::-1], cmap='bwr', interpolation='hanning', extent=[-3000, 3000, -3000, 3000])
+    plt.imshow(z[::-1], cmap='bwr', interpolation='none', extent=[-3000, 3000, -3000, 3000])
     plt.show()

@@ -3,7 +3,6 @@ import os
 import glob
 import random as rnd
 import numpy as np
-from varname import nameof
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ from tkinter import ttk
 
 
 class App(tk.Tk):
-    def __init__(self):
+    def __init__(self): 
         # Instanciate
         super().__init__()
         self.title('Spectrum Labelling App')
@@ -26,7 +25,7 @@ class App(tk.Tk):
         self.file_name = ""
 
         # Change to Data Directory
-        self.data_dir = os.getcwd() + '\\..\\Spectra Analysis\\sample'
+        self.data_dir = os.getcwd() + '\\..\\..\\04_Daten\\Maps_for_ISYS\\2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV'
         os.chdir(self.data_dir)
 
         # Create App
@@ -35,13 +34,16 @@ class App(tk.Tk):
 
 
     def createWidgets(self):
-
+        """Create App main functionalities."""
         self.rowconfigure(0, minsize=400, weight=1)
-        self.columnconfigure(1, minsize=400, weight=1)
+        self.columnconfigure(1, minsize=300, weight=1)
         padding = {'padx': 5, 'pady': 5}
 
-        # 1) Create Figure Frame
+        # Create top layer frames
         self.FrameFig = tk.Frame(master=self)
+        self.FrameFig.grid(row=0, column=0)
+        self.FrameLabel = tk.Frame(master=self)
+        self.FrameLabel.grid(row=0, column=1)
 
         # create FigureCanvasTkAgg object
         self.figure = Figure(figsize=(6, 4), dpi=100)
@@ -49,16 +51,12 @@ class App(tk.Tk):
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         NavigationToolbar2Tk(self.canvas, self.FrameFig)
 
-        self.FrameFig.grid(row=0, column=0)
-
-        # 2) Create Labeling Frame
-        self.FrameLabel = tk.Frame(master=self)
-
         # Add user entry
         userFrame = tk.Frame(master=self.FrameLabel)
+        tk.Label(master=userFrame, text="Enter user name: ").pack(side=tk.LEFT, **padding)
         self.user_entry = tk.Entry(master=userFrame)
         self.user_entry.insert(0, "User name")
-        self.user_entry.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.user_entry.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, **padding)
 
         # Create Radio Buttons
         radioBtnFrame = tk.Frame(master=self.FrameLabel)
@@ -85,15 +83,13 @@ class App(tk.Tk):
         radioBtnFrame.grid(row=1, column=0)
         btnFrame.grid(row=2, column=0)
 
-        self.FrameLabel.grid(row=0, column=1)
-
 
     def open_file(self):
         """Open a file for labeling."""
         files = glob.glob(self.data_dir + '/*.' + 'DAT')
         n = len(files)
         k = rnd.randint(0, n-1)
-        print("Selecting file {0} out of {1}".format(k,n))
+        #print("Selecting file {0} out of {1}".format(k,n))
         random_file = files[k]
         with open(random_file) as f:
             # remove file ending and extract infos from file name for spatial coordinates
@@ -122,12 +118,15 @@ class App(tk.Tk):
     def submit(self):
         """Save labeled text."""
         with open(self.file_path, mode="a", encoding="utf-8") as output_file:
-            user = self.user_entry.get()
+            # write file name
             output_file.write(self.file_name)
+            # write labels
             output_file.write(" label ")
             for label in self.labels:
                 output_file.write(label.get() + " ")
                 label.set("1")
+            # write user
+            user = self.user_entry.get()
             output_file.write(" user " + user + "\n")
         self.open_file()
 
