@@ -9,14 +9,14 @@ import numpy as np
 import pandas as pd
 
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Conv1D, Flatten, Dense, Reshape, Conv1DTranspose
 
 def readFiles(dir):
     # extract all .DAT files:
     files = glob.glob(dir + '/*.' + 'DAT')
     print('\nFound {0} files\n'.format(len(files)))
 
-    # Read files and save into dictionary
+    # Read files and save into dictionary 
     FIRST_FILE = True
     for file in files:
         with open(file) as f:
@@ -44,51 +44,82 @@ def anomalyScores(X_true, X_reconstructed):
 
 
 pwd = os.getcwd()
-dir = pwd + '\\..\\..\\04_Daten\\Maps_for_ISYS\\2021-09-17_map02_3000um_1800um'
+dir = pwd + '\\..\\..\\04_Daten\\sample'
 os.chdir(dir)
 
 # Prepare Data Set
 _, X = readFiles(dir)
 np.random.shuffle(X)
 
+n_dim  = X.shape[1]
 n_data = X.shape[0]
-n_train = int(0.6*n_data)
-n_val   = int(0.2*n_data)
+n_train = int(0.7*n_data)
+n_val   = int(0.1*n_data)
 
 dataX = X[:n_train]
 valDataX = X[n_train:n_train+n_val]
 testDataX = X[n_train+n_val:]
 
-# Call neural network API
-model = Sequential()
-model.add(Dense(units=1024, activation='linear',input_dim=1024))
-#model.add(Dense(units=1024, activation='linear'))
-model.add(Dense(units=1024, activation='linear'))
-model.compile(optimizer='adam',
+
+class AnomalyDetector(keras.Model):
+    def __init__(self):
+        super(AnomalyDetector, self).__init__()
+
+        self.encoder = Sequential([
+            #Reshape((1024,1)),
+            #Conv1D(1, 256, activation='relu',padding='same'),
+            #Flatten(),
+            Dense(units=1024, activation='linear',input_dim=1024),
+        ])
+
+        self.decoder = Sequential([
+            Dense(units=1024, activation='linear',input_dim=1024),
+            #Reshape((1024,1)),
+            #Conv1DTranspose(1, 256, activation='linear',padding='same'),
+            #Flatten()
+        ])
+
+    def call(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return decoded
+
+
+autoencoder = AnomalyDetector()
+
+autoencoder.compile(optimizer='adam',
               loss='mean_squared_error',
               metrics=['accuracy'])
 
+#autoencoder.build(input_shape=(1,1024))
+#autoencoder.encoder.summary()
+#autoencoder.decoder.summary()
+
+
+
 # Train the model
-num_epochs = 200
-batch_size = 32
-history = model.fit(x=dataX, y=dataX,
+
+num_epochs = 300
+batch_size = 64
+history = autoencoder.fit(x=dataX, y=dataX,
                     epochs=num_epochs,
                     batch_size=batch_size,
                     shuffle=True,
                     validation_data=(valDataX, valDataX),
                     verbose=1)
 
-predictions = model.predict(testDataX, verbose=1)
-anomalyScoresAE = anomalyScores(testDataX, predictions)
+predictions = autoencoder.predict(X, verbose=1)
+anomalyScoresAE = anomalyScores(X, predictions)
 
-anomalyThreshold = 0.2
+# Capture Anomalies with 95% security
+anomalyThreshold = np.mean(anomalyScoresAE) + 1.5*np.std(anomalyScoresAE)
 
 noiseIdx = anomalyScoresAE[anomalyScoresAE <= anomalyThreshold].index.values
 qDotsIdx = anomalyScoresAE[anomalyScoresAE > anomalyThreshold].index.values
 
 nNoise = len(noiseIdx)
 nQDots = len(qDotsIdx)
-nmbSamples = 5
+nmbSamples = 8
 
 print('\nFound {0} spectras and {1} noisy\n'.format(nQDots, nNoise))
 
@@ -97,7 +128,9 @@ for idx in range(nmbSamples):
     r1 = rnd.randint(0, nNoise-1)
     r2 = rnd.randint(0, nQDots-1)
     ax = fig.add_subplot(nmbSamples,2,2*idx+1)
-    ax.plot(testDataX[noiseIdx[r1]])
+    ax.plot(X[noiseIdx[r1]])
     ax = fig.add_subplot(nmbSamples,2,2*idx+2)
-    ax.plot(testDataX[qDotsIdx[r2]])
+    ax.plot(X[qDotsIdx[r2]])
 plt.show()
+
+#plt.savefig('Anomalies')

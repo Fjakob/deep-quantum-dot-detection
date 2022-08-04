@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     # set directories
     pwd = os.getcwd()
-    dir = pwd + '\\..\\sample'
+    dir = pwd + '\\..\\..\\04_Daten\\sample'
     os.chdir(dir)
 
     # extract spectras
