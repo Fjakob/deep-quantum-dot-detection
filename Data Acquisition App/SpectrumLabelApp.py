@@ -67,26 +67,25 @@ class App(tk.Tk):
         tk.Button(master=radioBtnFrame, text="-", command=self.decrease).grid(row=0, column=2, sticky="nsew")
         tk.Button(master=radioBtnFrame, text="+", command=self.increase).grid(row=0, column=3, sticky="nsew")
         
-        impression = tk.StringVar(name="Spetrum Impression", value="0")
-        background = tk.StringVar(name="Background", value="0")
-        snr = tk.StringVar(name="Signal-to-Noise", value="0")
+        impression   = tk.StringVar(name="Spetrum Impression", value="0")
+        background   = tk.StringVar(name="Background", value="0")
+        snr          = tk.StringVar(name="Signal-to-Noise", value="0")
         distinctness = tk.StringVar(name="Distinctness of Peaks", value="0")
-        peakWidth = tk.StringVar(name="Peak Width", value="0")
-        categories = [impression, background, snr, distinctness, peakWidth]
-        textLabels = ["0%", '25%', "50%", "75%", "100%"]
-        labels = [0, 25, 50, 75, 100]
+        peakWidth    = tk.StringVar(name="Peak Width", value="0")
+
+        categories   = [impression, background, snr, distinctness, peakWidth]
+        textLabels   = ["0%", '25%', "50%", "75%", "100%"]
+        numLabels    = [0, 25, 50, 75, 100]
         for idx, category in enumerate(categories):
             tk.Label(radioBtnFrame, text=category).grid(row=idx+1,column=0, **padding)
             for jdx, label in enumerate(textLabels):
-                ttk.Radiobutton(radioBtnFrame, text=label, variable=category, value=labels[jdx]).grid(row=idx+1,column=jdx+1, **padding)
+                ttk.Radiobutton(radioBtnFrame, text=label, variable=category, value=numLabels[jdx]).grid(row=idx+1,column=jdx+1, **padding)
         self.labels = categories
 
         # Create Buttons
         btnFrame = tk.Frame(master=self.FrameLabel)
-        submit_btn = tk.Button(master=btnFrame, text="Submit", command=self.submit)
-        submit_btn.pack(side=tk.RIGHT, fill=tk.BOTH, **padding)
-        skip_btn = tk.Button(master=btnFrame, text="Skip", command=self.startFromTopDir)
-        skip_btn.pack(side=tk.RIGHT, fill=tk.BOTH, **padding)
+        tk.Button(master=btnFrame, text="Submit", command=self.submit).pack(side=tk.RIGHT, fill=tk.BOTH, **padding)
+        tk.Button(master=btnFrame, text="Skip", command=self.startFromTopDir).pack(side=tk.RIGHT, fill=tk.BOTH, **padding)
 
         # Add Frames to Label Frame
         userFrame.grid(row=0, column=0, **padding, sticky="nswe")
@@ -104,6 +103,7 @@ class App(tk.Tk):
         label_menu.add_command(label='Undo Last Submit', command=self.undo)
         label_menu.add_command(label='Open Label Text File', command=self.openTxtWindow)
         info_menu = tk.Menu(menubar, tearoff=False)
+        #TODO: Add Info File
         info_menu.add_command(label="Info", command=tk.NONE)
         menubar.add_cascade(label="Menu", menu=open_menu)
         menubar.add_cascade(label="Label File", menu=label_menu)
@@ -112,9 +112,9 @@ class App(tk.Tk):
 
     def open_folder(self):
         """Asks for folder with relevant subfolders/files."""
-        #TODO: exception handeling if browsing get canceled
         self.top_dir = askdirectory()
-        self.startFromTopDir()
+        if self.top_dir:
+            self.startFromTopDir()
 
 
     def startFromTopDir(self):
@@ -164,10 +164,12 @@ class App(tk.Tk):
 
 
     def increase(self):
+        "Peak Counter Increment"
         value = int(self.lbl_value["text"])
         self.lbl_value["text"] = f"{value + 1}"
 
     def decrease(self):
+        "Peak Counter Decrement"
         value = int(self.lbl_value["text"])
         if value != 0:
             self.lbl_value["text"] = f"{value - 1}"
@@ -187,6 +189,7 @@ class App(tk.Tk):
             output_file.write(" file " + os.path.basename(os.getcwd()) + '\\' + self.file_name)
             # write labels
             output_file.write(" label " + self.lbl_value["text"] + " ")
+            self.lbl_value["text"] = f"{0}"
             for label in self.labels:
                 output_file.write(label.get() + " ")
                 label.set("0")
