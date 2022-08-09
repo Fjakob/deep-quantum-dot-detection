@@ -61,25 +61,34 @@ class App(tk.Tk):
         # Create Peak Counter and Radio Buttons
         radioBtnFrame = tk.Frame(master=self.FrameLabel)
 
+        # Peak Counter
         tk.Label(master=radioBtnFrame, text="Number of Peaks").grid(row=0, column=0, **padding)
         self.lbl_value = tk.Label(master=radioBtnFrame, text="0")
         self.lbl_value.grid(row=0, column=1, **padding)
         tk.Button(master=radioBtnFrame, text="-", command=self.decrease).grid(row=0, column=2, sticky="nsew")
         tk.Button(master=radioBtnFrame, text="+", command=self.increase).grid(row=0, column=3, sticky="nsew")
-        
-        impression   = tk.StringVar(name="Spetrum Impression", value="0")
+
         background   = tk.StringVar(name="Background", value="0")
-        snr          = tk.StringVar(name="Signal-to-Noise", value="0")
         distinctness = tk.StringVar(name="Distinctness of Peaks", value="0")
         peakWidth    = tk.StringVar(name="Peak Width", value="0")
+        impression   = tk.StringVar(name="Spetrum Impression", value="0")
 
-        categories   = [impression, background, snr, distinctness, peakWidth]
+        # Label Radiobuttons
+        categories   = [background, distinctness, peakWidth]
         textLabels   = ["0%", '25%', "50%", "75%", "100%"]
         numLabels    = [0, 25, 50, 75, 100]
         for idx, category in enumerate(categories):
             tk.Label(radioBtnFrame, text=category).grid(row=idx+1,column=0, **padding)
             for jdx, label in enumerate(textLabels):
                 ttk.Radiobutton(radioBtnFrame, text=label, variable=category, value=numLabels[jdx]).grid(row=idx+1,column=jdx+1, **padding)
+
+        # Spectrum Impression
+        tk.Label(radioBtnFrame, text=impression).grid(row=4,column=0, **padding)
+        ttk.Radiobutton(radioBtnFrame, text='bad', variable=impression, value=0).grid(row=4,column=1, **padding)
+        ttk.Radiobutton(radioBtnFrame, text='ok', variable=impression, value=1).grid(row=4,column=2, **padding)
+        ttk.Radiobutton(radioBtnFrame, text='good', variable=impression, value=2).grid(row=4,column=3, **padding)
+        
+        categories.append(impression)
         self.labels = categories
 
         # Create Buttons
@@ -103,8 +112,7 @@ class App(tk.Tk):
         label_menu.add_command(label='Undo Last Submit', command=self.undo)
         label_menu.add_command(label='Open Label Text File', command=self.openTxtWindow)
         info_menu = tk.Menu(menubar, tearoff=False)
-        #TODO: Add Info File
-        info_menu.add_command(label="Info", command=tk.NONE)
+        info_menu.add_command(label="Info", command=self.openInfo)
         menubar.add_cascade(label="Menu", menu=open_menu)
         menubar.add_cascade(label="Label File", menu=label_menu)
         menubar.add_cascade(label="Info", menu=info_menu)
@@ -174,26 +182,32 @@ class App(tk.Tk):
         if value != 0:
             self.lbl_value["text"] = f"{value - 1}"
 
+    
+    def createOutputFile(self):
+        "Creates Output File."
+        self.file_path = self.app_dir + '\\LabeledSpectra_' + self.user_entry.get() + self.version + '.txt'
+        with open(self.file_path, mode="a", encoding="utf-8") as output_file:
+            output_file.write('')
+
 
     def submit(self):
         """Save labeled spectrum in textfile."""
-        user = self.user_entry.get()
         if self.file_path is None:
-            self.file_path = self.app_dir + '\\LabeledSpectra_' + user + self.version + '.txt'
+            self.createOutputFile()
         with open(self.file_path, mode="a", encoding="utf-8") as output_file:
-            # write date
-            output_file.write("date " + datetime.today().strftime('%Y-%m-%d'))
-            # write user
-            output_file.write(" user " + user)
-            # write file name
-            output_file.write(" file " + os.path.basename(os.getcwd()) + '\\' + self.file_name)
             # write labels
             output_file.write(" label " + self.lbl_value["text"] + " ")
             self.lbl_value["text"] = f"{0}"
             for label in self.labels:
                 output_file.write(label.get() + " ")
                 label.set("0")
-            output_file.write("\n")
+            # write date
+            output_file.write("date " + datetime.today().strftime('%Y-%m-%d'))
+            # write user
+            user = self.user_entry.get()
+            output_file.write(" user " + user)
+            # write file name
+            output_file.write(" file " + os.path.basename(os.getcwd()) + '\\' + self.file_name + "\n")
         self.startFromTopDir()
 
 
@@ -211,8 +225,10 @@ class App(tk.Tk):
 
     def openTxtWindow(self):
         """Open textfile in external text editor."""
+        if self.file_path is None:
+            self.createOutputFile() 
         window = tk.Tk()
-        window.title('LabeledSpectra.txt')
+        window.title(os.path.basename(self.file_path))
         sy = tk.Scrollbar(window)
         sx = tk.Scrollbar(window,  orient=tk.HORIZONTAL)
         editor = tk.Text(window, height=30, width=100, wrap='none')
@@ -224,6 +240,27 @@ class App(tk.Tk):
         with open(self.file_path, mode="r", encoding="utf-8") as file:
             txt = file.read()
             editor.insert(tk.END, txt)
+        window.mainloop()
+
+
+    def openInfo(self):
+        """Open Info in external text editor."""
+        window = tk.Tk()
+        window.title('Info')
+        info = "Number of Peaks: Number of clearly visible peaks. Ignore very small peaks in high intensity spectra. \n"
+        info += "\nSpectrum Impression: Overall subjective impression of the spectrum. Would you like to work with this one? High is better. \n"
+        info += "\nBackground: Signal not matching the noise or peaks. Bulbs, gradient, etc. Low is better. \n"
+        info += "\nDistinctiveness of Peaks: How well are the peaks isolated (e.g. douple peaks). Prioritize bright peaks over dark ones. High is better. \n"
+        info += "\nPeak Width: Width of the individual peaks (e.g shoulders) without broadening by neighbours (e.g. double peaks). Narrow is better. \n"
+        sy = tk.Scrollbar(window)
+        sx = tk.Scrollbar(window,  orient=tk.HORIZONTAL)
+        editor = tk.Text(window, height=30, width=100, wrap='none')
+        sx.pack(side=tk.BOTTOM, fill=tk.X)
+        sy.pack(side=tk.RIGHT, fill=tk.Y)
+        editor.pack(side=tk.LEFT, fill='both', expand=True)
+        sy.config(command=editor.yview)
+        sx.config(command=editor.xview)
+        editor.insert(tk.END, info)
         window.mainloop()
 
 

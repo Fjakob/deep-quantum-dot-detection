@@ -1,0 +1,10 @@
+Number of Peaks: Number of clearly visible peaks. Ignore very small peaks in high intensity spectra.
+
+Spectrum Impression: Overall subjective impression of the spectrum. Would you like to work with this one? High is better.
+
+Background: Signal not matching the noise or peaks. Bulbs, gradient, etc. Low is better.
+
+Distinctiveness of Peaks: How well are the peaks isolated (e.g. douple peaks). Prioritize bright peaks over dark ones. High is better.
+
+Peak Width: Width of the individual peaks (e.g shoulders) without broadening by neighbours (e.g. double peaks). Narrow is better.
+
