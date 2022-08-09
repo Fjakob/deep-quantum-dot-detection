@@ -21,7 +21,7 @@ class App(tk.Tk):
         self.title('Spectrum Labelling App')
 
         # Specify Output file (will get created if not existent)
-        self.version = '_v1'
+        self.version = '_v2'
         self.file_path = None
         self.app_dir = os.getcwd()
         self.file_name = ""
@@ -73,22 +73,13 @@ class App(tk.Tk):
         peakWidth    = tk.StringVar(name="Peak Width", value="0")
         impression   = tk.StringVar(name="Spetrum Impression", value="0")
 
-        # Label Radiobuttons
-        categories   = [background, distinctness, peakWidth]
-        textLabels   = ["0%", '25%', "50%", "75%", "100%"]
-        numLabels    = [0, 25, 50, 75, 100]
+        categories   = [impression, background, distinctness, peakWidth]
+        textLabels = ["--", "-", "0", "+", "++"] # emojis: ["\U0001F62D", "\U0001F641", "\U0001F610", "\U0001F642", "\U0001F604"]
+        numLabels    = [-2, -1, 0, 1, 2]
         for idx, category in enumerate(categories):
             tk.Label(radioBtnFrame, text=category).grid(row=idx+1,column=0, **padding)
             for jdx, label in enumerate(textLabels):
-                ttk.Radiobutton(radioBtnFrame, text=label, variable=category, value=numLabels[jdx]).grid(row=idx+1,column=jdx+1, **padding)
-
-        # Spectrum Impression
-        tk.Label(radioBtnFrame, text=impression).grid(row=4,column=0, **padding)
-        ttk.Radiobutton(radioBtnFrame, text='bad', variable=impression, value=0).grid(row=4,column=1, **padding)
-        ttk.Radiobutton(radioBtnFrame, text='ok', variable=impression, value=1).grid(row=4,column=2, **padding)
-        ttk.Radiobutton(radioBtnFrame, text='good', variable=impression, value=2).grid(row=4,column=3, **padding)
-        
-        categories.append(impression)
+                ttk.Radiobutton(radioBtnFrame, text=label, variable=category, value=numLabels[jdx]).grid(row=idx+1,column=jdx+1, **padding)  
         self.labels = categories
 
         # Create Buttons
@@ -149,7 +140,7 @@ class App(tk.Tk):
                 random_file = files[k]
                 with open(random_file) as f:
                     # remove file ending
-                    self.file_name = "".join(os.path.basename(random_file).split('.')[:-1])
+                    self.file_name = ".".join(os.path.basename(random_file).split('.')[:-1])
                     # read wavelengths
                     lines = f.readlines()
                     w_raw = [line.split()[0] for line in lines]
@@ -168,6 +159,7 @@ class App(tk.Tk):
         axes.set_title('Spectrum')
         axes.set_ylabel('Intensity')
         axes.set_xlabel('Wavelength')
+        axes.grid()
         self.canvas.draw()
 
 
@@ -248,10 +240,10 @@ class App(tk.Tk):
         window = tk.Tk()
         window.title('Info')
         info = "Number of Peaks: Number of clearly visible peaks. Ignore very small peaks in high intensity spectra. \n"
-        info += "\nSpectrum Impression: Overall subjective impression of the spectrum. Would you like to work with this one? High is better. \n"
-        info += "\nBackground: Signal not matching the noise or peaks. Bulbs, gradient, etc. Low is better. \n"
-        info += "\nDistinctiveness of Peaks: How well are the peaks isolated (e.g. douple peaks). Prioritize bright peaks over dark ones. High is better. \n"
-        info += "\nPeak Width: Width of the individual peaks (e.g shoulders) without broadening by neighbours (e.g. double peaks). Narrow is better. \n"
+        info += "\nSpectrum Impression: Overall subjective impression of the spectrum. Would you like to work with this one? ++ means perfect. \n"
+        info += "\nBackground: Signal not matching the noise or peaks. Bulbs, gradient, etc. ++ means no background. \n"
+        info += "\nDistinctiveness of Peaks: How well are the peaks isolated (e.g. douple peaks). Prioritize bright peaks over dark ones. ++ means perfecr. \n"
+        info += "\nPeak Width: Width of the individual peaks (e.g shoulders) without broadening by neighbours (e.g. double peaks). ++ means narrow. \n"
         sy = tk.Scrollbar(window)
         sx = tk.Scrollbar(window,  orient=tk.HORIZONTAL)
         editor = tk.Text(window, height=30, width=100, wrap='none')
