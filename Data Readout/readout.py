@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-with open('LabeledSpectra_FJakob_v2.txt') as f:
+with open('LabeledSpectra_AB_v2.txt') as f:
     top_dir = "..\\..\\04_Daten\\Maps_for_ISYS\\"
     lines = f.readlines()
     dataSet = []
@@ -24,14 +24,19 @@ with open('LabeledSpectra_FJakob_v2.txt') as f:
         dataSet.append((w, spectrum, labels))
 
 
+# save as pickle
 with open("dataSet", "wb") as fp:
     pickle.dump(dataSet, fp)
 
-idx = 4
-w   = dataSet[idx][0]
-spec = dataSet[idx][1]
-label = dataSet[idx][2]
-plt.plot(w,spec)
-plt.title(str(label[0]) + " peaks, " + str(label[1]) + " impression, " + str(label[3]) + " width")
-plt.show()
+for w, spec, label in dataSet:
+    #w   = dataSet[idx][0]
+    #spec = dataSet[idx][1]
+    #label = dataSet[idx][2]
+    plt.plot(w,spec)
+    plt.title(str(label[0]) + " peaks, " 
+                + str(label[1]) + " impression, " 
+                + str(label[2]) + " background\n" 
+                + str(label[3]) + " distinctness, " 
+                + str(label[3]) + " width")
+    plt.show()
 

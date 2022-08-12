@@ -1,0 +1,8 @@
+ label 2 1 2 0 2 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X-1.00E+04_Y-1.40E+04_quantum_dot
+ label 7 -1 1 -1 1 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X3.00E+04_Y3.80E+04_quantum_dot
+ label 4 -1 1 -2 1 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X3.20E+04_Y-2.80E+04_quantum_dot
+ label 1 1 1 2 2 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X3.40E+04_Y2.00E+03_quantum_dot
+ label 2 0 1 -1 1 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X-4.60E+04_Y4.00E+04_quantum_dot
+ label 1 1 2 2 2 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X-3.80E+04_Y0.00E+00_quantum_dot
+ label 1 1 0 2 2 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X-1.80E+04_Y-3.80E+04_quantum_dot
+ label 2 0 2 -1 0 date 2022-08-10 user AB file 2022-07-12_map19_2560um_0700um_100x100_650mV-1250mV\map_19_ab30nW_rect_650and1250mV_X-2.00E+04_Y-3.80E+04_quantum_dot

@@ -188,7 +188,7 @@ class App(tk.Tk):
             self.createOutputFile()
         with open(self.file_path, mode="a", encoding="utf-8") as output_file:
             # write labels
-            output_file.write(" label " + self.lbl_value["text"] + " ")
+            output_file.write("label " + self.lbl_value["text"] + " ")
             self.lbl_value["text"] = f"{0}"
             for label in self.labels:
                 output_file.write(label.get() + " ")
@@ -216,43 +216,40 @@ class App(tk.Tk):
 
 
     def openTxtWindow(self):
-        """Open textfile in external text editor."""
+        """Open textfile in external text viewer."""
         if self.file_path is None:
             self.createOutputFile() 
-        window = tk.Tk()
-        window.title(os.path.basename(self.file_path))
-        sy = tk.Scrollbar(window)
-        sx = tk.Scrollbar(window,  orient=tk.HORIZONTAL)
-        editor = tk.Text(window, height=30, width=100, wrap='none')
-        sx.pack(side=tk.BOTTOM, fill=tk.X)
-        sy.pack(side=tk.RIGHT, fill=tk.Y)
-        editor.pack(side=tk.LEFT, fill='both', expand=True)
-        sy.config(command=editor.yview)
-        sx.config(command=editor.xview)
         with open(self.file_path, mode="r", encoding="utf-8") as file:
             txt = file.read()
-            editor.insert(tk.END, txt)
-        window.mainloop()
+        self.createTextViewer(title=os.path.basename(self.file_path), text=txt)
 
 
     def openInfo(self):
-        """Open Info in external text editor."""
-        window = tk.Tk()
-        window.title('Info')
+        """Open Info in external text viewer."""
         info = "Number of Peaks: Number of clearly visible peaks. Ignore very small peaks in high intensity spectra. \n"
         info += "\nSpectrum Impression: Overall subjective impression of the spectrum. Would you like to work with this one? ++ means perfect. \n"
         info += "\nBackground: Signal not matching the noise or peaks. Bulbs, gradient, etc. ++ means no background. \n"
         info += "\nDistinctiveness of Peaks: How well are the peaks isolated (e.g. douple peaks). Prioritize bright peaks over dark ones. ++ means perfecr. \n"
         info += "\nPeak Width: Width of the individual peaks (e.g shoulders) without broadening by neighbours (e.g. double peaks). ++ means narrow. \n"
+        self.createTextViewer(title='Info', text=info)
+
+
+    def createTextViewer(self, title, text):
+        """Creates external text viewer"""
+        window = tk.Tk()
+        window.title(title)
+        # create text field and scrollbars
+        editor = tk.Text(window, height=30, width=100, wrap='none')
         sy = tk.Scrollbar(window)
         sx = tk.Scrollbar(window,  orient=tk.HORIZONTAL)
-        editor = tk.Text(window, height=30, width=100, wrap='none')
         sx.pack(side=tk.BOTTOM, fill=tk.X)
         sy.pack(side=tk.RIGHT, fill=tk.Y)
         editor.pack(side=tk.LEFT, fill='both', expand=True)
+        # link scrollbars to text field
         sy.config(command=editor.yview)
         sx.config(command=editor.xview)
-        editor.insert(tk.END, info)
+        # insert text
+        editor.insert(tk.END, text)
         window.mainloop()
 
 
