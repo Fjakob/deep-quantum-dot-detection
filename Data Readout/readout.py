@@ -4,42 +4,56 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-with open('LabeledSpectra_AB_v2.txt') as f:
-    top_dir = "..\\..\\04_Daten\\Maps_for_ISYS\\"
-    lines = f.readlines()
+
+def loadDataSet(label_dir, data_dir):
+    """ Loads all labeled spectra from txt files."""
     dataSet = []
-    for line in lines:
-        line = line.split()
-        labels = np.asarray(line[1:6]).astype(float)
-        date = line[7]
-        user = line[9]
-        path = top_dir + line[-1] + ".dat"
-        try:
-            with open(path) as f:
-                lines = f.readlines()
-                w_raw = [line.split()[0] for line in lines]
-                w = np.asarray(w_raw).astype(float)
-                # read spectrum
-                spectrum_raw = [line.split()[1] for line in lines]
-                spectrum = np.asarray(spectrum_raw).astype(float)
-        except(FileNotFoundError):
-            pass
-        dataSet.append((w, spectrum, labels))
+    for file in os.listdir(label_dir):
+        with open(label_dir + '\\' + file) as f:
+            lines = f.readlines()
+            for line in lines:
+                line = line.split()
+                labels = np.asarray(line[1:6]).astype(float)
+                #date = line[7]
+                #user = line[9]
+                path = data_dir + line[-1] + ".dat"
+                try:
+                    with open(path) as f:
+                        lines = f.readlines()
+                        w_raw = [line.split()[0] for line in lines]
+                        w = np.asarray(w_raw).astype(float)
+                        # read spectrum
+                        spectrum_raw = [line.split()[1] for line in lines]
+                        spectrum = np.asarray(spectrum_raw).astype(float)
+                except(FileNotFoundError):
+                    pass
+                dataSet.append((w, spectrum, labels))
+    return dataSet
 
 
-# save as pickle
-with open("dataSet", "wb") as fp:
-    pickle.dump(dataSet, fp)
+if __name__ == '__main__':
 
-for w, spec, label in dataSet:
-    #w   = dataSet[idx][0]
-    #spec = dataSet[idx][1]
-    #label = dataSet[idx][2]
-    plt.plot(w,spec)
-    plt.title(str(label[0]) + " peaks, " 
-                + str(label[1]) + " impression, " 
-                + str(label[2]) + " background\n" 
-                + str(label[3]) + " distinctness, " 
-                + str(label[3]) + " width")
-    plt.show()
+    plot = False
+
+    # Specify working directories
+    label_dir = 'LabeledSpectra'
+    data_dir = "..\\..\\04_Daten\\Maps_for_ISYS\\"
+
+    # Load dataset
+    dataSet = loadDataSet(label_dir, data_dir)
+
+    # save as pickle
+    with open("dataSet", "wb") as fp:
+        pickle.dump(dataSet, fp)
+    print("Saved data set with {0} labeled spectra.".format(len(dataSet)))
+
+    if plot:
+        for w, spec, label in dataSet:
+            plt.plot(w,spec)
+            plt.title(str(label[0]) + " peaks, " 
+                        + str(label[1]) + " impression, " 
+                        + str(label[2]) + " background\n" 
+                        + str(label[3]) + " distinctness, " 
+                        + str(label[3]) + " width")
+            plt.show()
 
