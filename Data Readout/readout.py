@@ -14,13 +14,16 @@ with open('LabeledSpectra_AB_v2.txt') as f:
         date = line[7]
         user = line[9]
         path = top_dir + line[-1] + ".dat"
-        with open(path) as f:
-            lines = f.readlines()
-            w_raw = [line.split()[0] for line in lines]
-            w = np.asarray(w_raw).astype(float)
-            # read spectrum
-            spectrum_raw = [line.split()[1] for line in lines]
-            spectrum = np.asarray(spectrum_raw).astype(float)
+        try:
+            with open(path) as f:
+                lines = f.readlines()
+                w_raw = [line.split()[0] for line in lines]
+                w = np.asarray(w_raw).astype(float)
+                # read spectrum
+                spectrum_raw = [line.split()[1] for line in lines]
+                spectrum = np.asarray(spectrum_raw).astype(float)
+        except(FileNotFoundError):
+            pass
         dataSet.append((w, spectrum, labels))
 
 

@@ -108,7 +108,6 @@ def mergeMountains(peaks, x):
     return out_peaks
 
 
-
 if __name__ == '__main__':
 
     with open('dataSet', 'rb') as f:
@@ -122,25 +121,29 @@ if __name__ == '__main__':
         y_peak = label[0]
 
         if detection=='Threshold':
-            param_peak = 25
-            param_width = 0.9
+            param_peak = 20.5
             idx_peak, _ = find_peaks(x, height=param_peak)
             n_peak = len(idx_peak)
-            #widths = peak_widths(x, idx_peak, rel_height=param_width)
+            param_width = 0.9
+            widths = peak_widths(x, idx_peak, rel_height=param_width)
         elif detection=='OS-CFAR':
-            idx_peak, n_peak, thresh = OS_CFAR(x, N=128, T=5, N_protect=20)
+            idx_peak, n_peak, thresh = OS_CFAR(x, N=200, T=7, N_protect=20)
+            param_width = 0.9
+            widths = peak_widths(x, idx_peak, rel_height=param_width)
         elif detection=='CAGO-CFAR':
             idx_peak, n_peak, thresh = CAGO_CFAR(x, N=256, T=7, N_protect=10)
 
         plt.plot(x)
         plt.plot(idx_peak, x[idx_peak], 'x')
-        #plt.plot(thresh)
+        plt.plot(thresh)
         #plt.hlines(param_peak, 0, 1023, color='green')
         plt.title("Peaks: {0}, f(x)={1}".format(int(y_peak), n_peak))
-        #plt.hlines(*widths[1:], color="C2")
+        plt.hlines(*widths[1:], color="C2")
         plt.grid()
-        #plt.show()
-        hit += np.exp(-1.1*np.abs(y_peak-n_peak))
+        plt.show()
+        hit += np.exp(-0.69*np.square(y_peak-n_peak))
     print("Accuracy: {0}\%".format(hit/len(dataSet)*100))
+
+    # accuracy=0.5 == +-1 peak misclassified
 
 

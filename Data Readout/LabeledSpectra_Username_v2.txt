@@ -1,3 +1,0 @@
-label 0 -2 -2 -2 -2 date 2022-08-12 user Username file 2021-08-09_mp450mV_ab100nW_SS1um_IT500ms_50x50um\2021-08-09_alpha_map01_mp450mV_ab100nW_SS1um_IT500ms_50x50um_X-1.50E+03_Y-2.10E+04
-label 0 -2 -2 -2 -2 date 2022-08-12 user Username file 2021-08-09_mp450mV_ab100nW_SS1um_IT500ms_50x50um\2021-08-09_alpha_map01_mp450mV_ab100nW_SS1um_IT500ms_50x50um_X2.05E+04_Y-1.55E+04
-label 4 1 -1 -2 0 date 2022-08-12 user Username file 2021-08-09_mp450mV_ab100nW_SS1um_IT500ms_50x50um\2021-08-09_alpha_map01_mp450mV_ab100nW_SS1um_IT500ms_50x50um_X-6.50E+03_Y1.90E+04
