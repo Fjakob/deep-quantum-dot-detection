@@ -33,7 +33,7 @@ def loadDataSet(label_dir, data_dir):
 
 if __name__ == '__main__':
 
-    plot = False
+    plot = True
 
     # Specify working directories
     label_dir = 'LabeledSpectra'
@@ -54,6 +54,17 @@ if __name__ == '__main__':
                         + str(label[1]) + " impression, " 
                         + str(label[2]) + " background\n" 
                         + str(label[3]) + " distinctness, " 
-                        + str(label[3]) + " width")
+                        + str(label[4]) + " width")
             plt.show()
+
+    for w, x, label in dataSet:
+        y = label[1]
+        try:
+            Y = np.vstack((Y, y))
+        except(NameError):
+            Y = y
+    plt.hist(Y)
+    plt.title('Spectrum Impressions')
+    plt.show()
+
 

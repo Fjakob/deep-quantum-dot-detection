@@ -9,21 +9,24 @@ import pickle
 class SpectrumRater(keras.Model):
     def __init__(self):
         super(SpectrumRater, self).__init__()
-        self.conv0   = keras.layers.Conv1D(8, 9, strides=4, activation="relu")
-        self.conv1   = keras.layers.Conv1D(16, 9, strides=4, activation="relu")
+        self.conv0   = keras.layers.Conv1D(8, 9, strides=4, activation="selu")
+        self.conv1   = keras.layers.Conv1D(16, 9, strides=4, activation="selu")
+        self.conv2   = keras.layers.Conv1D(32, 9, activation='selu')
         self.flatten = keras.layers.Flatten()
         self.dropout = keras.layers.Dropout(rate=0.2)
-        self.dense0  = keras.layers.Dense(128, activation="relu")
-        self.dense1  = keras.layers.Dense(64, activation="relu")
+        self.dense0  = keras.layers.Dense(128, activation="selu")
+        self.dense1  = keras.layers.Dense(64, activation="selu")
         self.dense2  = keras.layers.Dense(5, activation="softmax")
 
     def call(self, inputs, training=False):
         output = self.conv0(inputs)
         output = self.conv1(output)
+        output = self.conv2(output)
         output = self.flatten(output)
         output = self.dropout(output)
         output = self.dense0(output)
-        #output = self.dense1(output)
+        output = self.dropout(output)
+        output = self.dense1(output)
         output = self.dense2(output)
         return output
 
@@ -60,7 +63,7 @@ if __name__ == '__main__':
 
     # Model Hyperparameters
     batch_size = 16
-    epochs = 20
+    epochs = 100
     learning_rate = 0.001
 
     # Create Model

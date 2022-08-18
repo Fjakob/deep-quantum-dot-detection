@@ -1,5 +1,0 @@
- label 4 2 2 2 1 date 2022-08-09 user FJakob file 2022-07-11_map17_3010um_0700um_200x50_650mV-1250mV\map_17_ab30nW_rect_650and1250mV_X5.40E+04_Y-2.50E+04_quantum_dot
- label 0 1 2 2 1 date 2022-08-09 user FJakob file 2022-07-11_map17_3010um_0700um_200x50_650mV-1250mV\map_17_ab30nW_rect_650and1250mV_X9.80E+04_Y1.10E+04_quantum_dot
- label 0 -2 -2 -2 -2 date 2022-08-09 user FJakob file 2021-09-20_map12_3000um_0700um_rect_650mV-1250mV\map_12_ab30nW_rect_650and1250mV_X-5.00E+04_Y3.20E+04_quantum_dot
- label 2 2 2 1 0 date 2022-08-09 user FJakob file 2021-09-17_map04_3000um_3000um\map_04_ab20nW_ramp_0to1500mV_X3.00E+04_Y1.40E+04_quantum_dot
- label 2 1 1 -1 1 date 2022-08-09 user FJakob file 2022-07-11_map14_2660um_0691um_100x32_650mV-1250mV\map_14_ab30nW_rect_650and1250mV_X-4.20E+04_Y-1.00E+04_quantum_dot
