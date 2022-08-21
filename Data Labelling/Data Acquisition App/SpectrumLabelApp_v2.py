@@ -80,7 +80,7 @@ class App(tk.Tk):
 
         categories   = [impression, background, distinctness, peakWidth]
         textLabels = ["--", "-", "0", "+", "++"] # emojis: ["\U0001F62D", "\U0001F641", "\U0001F610", "\U0001F642", "\U0001F604"]
-        numLabels    = [-2, -1, 1, 2]
+        numLabels    = [-2, -1, 0, 1, 2]
         for idx, category in enumerate(categories):
             tk.Label(radioBtnFrame, text=category).grid(row=idx+1,column=0, **padding)
             for jdx, label in enumerate(textLabels):

@@ -33,11 +33,11 @@ def loadDataSet(label_dir, data_dir):
 
 if __name__ == '__main__':
 
-    plot = True
+    plot = False
 
     # Specify working directories
-    label_dir = 'LabeledSpectra'
-    data_dir = "..\\..\\04_Daten\\Maps_for_ISYS\\"
+    label_dir = 'LabeledSpectra_v2'
+    data_dir = "..\\..\\..\\04_Daten\\Maps_for_ISYS\\"
 
     # Load dataset
     dataSet = loadDataSet(label_dir, data_dir)

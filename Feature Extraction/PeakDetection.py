@@ -3,120 +3,73 @@ import matplotlib.pyplot as plt
 import pickle
 import random as rnd
 from scipy.signal import find_peaks, peak_widths
-
-def CAGO_CFAR(x, N=32, T=5, N_protect=0):
-    n = len(x)
-    peaks = []
-    n_peaks = 0
-    thresh = []
-    for idx in range(n):
-        CUT = x[idx]
-        # Collect Window around CUT
-        X_left = []
-        X_right = []
-        # idx-N/2 | ... | idx-1 | (idx) | idx+1 | ... | idx+N/2
-        for jdx in range(int((N+N_protect)/2)):
-            if (jdx+1) > N_protect/2:
-                if idx+jdx+1 < n-1:
-                    X_right.append(x[idx+jdx+1])
-            if (-jdx-1) < (-N_protect/2):
-                if idx-jdx-1 > 0:
-                    X_left.append(x[idx-jdx-1])
-        Z = 2/N * np.max([np.asarray(X_left).sum(), np.asarray(X_right).sum()])
-        thresh.append(Z*T)
-        # OS-CFAR test
-        if CUT > Z*T:
-            peaks.append(idx) #peak
-    if isinstance(peaks, list):
-        peaks = mergeMountains(peaks,x)
-        n_peaks = len(peaks)
-    elif not peaks:
-        n_peaks = 0
-    else:
-        n_peaks = 1
-    return peaks, n_peaks, np.asarray(thresh)
+from itertools import groupby
+from operator import itemgetter
+import time
 
 
 def OS_CFAR(x, N=32, T=5, k=None, N_protect=0):
-    # useful: N=32, k=27, T=10.7
-    n = len(x)
+    """Implementation of OS-CFAR Detector (see Literature)."""
     if k is None:
         k = round(3/4*N)
-    peaks = []
-    n_peaks = 0
-    thresh = []
+    else:
+        assert k < N, "k cannot be bigger than N!"
+
+    n = len(x)
+    peaks, thresh = [], []
     for idx in range(n):
-        CUT = x[idx]
         # Collect Window around CUT
-        X = []
         # idx-N/2 | ... | idx-1 | (idx) | idx+1 | ... | idx+N/2
-        for jdx in range(int((N+N_protect)/2)):
-            if (jdx+1) > N_protect/2:
-                if idx+jdx+1 < n-1:
-                    X.append(x[idx+jdx+1])
-            if (-jdx-1) < (-N_protect/2):
-                if idx-jdx-1 > 0:
-                    X.append(x[idx-jdx-1])
+        X_left  = [x[idx+jdx] for jdx in range(int(N_protect/2)+1, int((N+N_protect)/2)+1) if idx+jdx < n-1]
+        X_right = [x[idx-jdx] for jdx in range(int(N_protect/2)+1, int((N+N_protect)/2)+1) if idx-jdx > 0]
         # sort Window in ascending order
+        X = X_left + X_right
         X.sort()
+        # edit k, if Window length is not N (case e.g. in signal boundaries)
         if len(X) != N:
-            # case e.g. in signal boundaries
             k = round(3/4*len(X))
-        Z = X[k]
-        thresh.append(Z*T)
+        # calculate threshold based on ordered statistics X
+        threshold = X[k]*T
+        thresh.append(threshold)
         # OS-CFAR test
-        if CUT > Z*T:
-            peaks.append(idx) #peak
+        if x[idx] > threshold:
+            peaks.append(idx)
+
     if isinstance(peaks, list):
-        peaks = mergeMountains(peaks,x)
+        # Consecutive peak indices belong to the same peak: 
+        peaks = mergeConsecutivePeaks(peaks,x)
         n_peaks = len(peaks)
     elif not peaks:
+        # No peaks
         n_peaks = 0
     else:
         n_peaks = 1
+
     return peaks, n_peaks, np.asarray(thresh)
 
 
-def mergeMountains(peaks, x):
-    mountain=False
-    peak_mem=[]
-    out_peaks=[]
-    for i, peak_idx in enumerate(peaks):
-        try:
-            if peak_idx+1 == peaks[i+1]:
-                mountain=True
-                if not peak_mem:
-                    peak_mem.append(peak_idx)
-                peak_mem.append(peaks[i+1])
-            else:
-                if not mountain:
-                    out_peaks.append(peak_idx)
-                else:
-                    peak_idx = peak_mem[np.argmax(x[peak_mem])]
-                    out_peaks.append(peak_idx)
-                    mountain=False
-                    peak_mem=[]
-        except(IndexError):
-            #last element
-            if not mountain:
-                    out_peaks.append(peak_idx)
-            else:
-                peak_idx = peak_mem[np.argmax(x[peak_mem])]
-                out_peaks.append(peak_idx)
-                mountain=False
-                peak_mem=[]
-    return out_peaks
+def mergeConsecutivePeaks(peak_indices, x):
+    """Merge multiple consecutive peak indices to the one corresponding to the highest value in x."""
+    mergedPeaks = []
+    for _, g in groupby(enumerate(peak_indices), lambda ix: ix[0]-ix[1]):
+        # group is a sublist containing consecutive peak indices
+        group = list(map(itemgetter(1), g))
+        mergedPeaks.append(group[np.argmax(x[group])])
+    return mergedPeaks
 
 
 if __name__ == '__main__':
+    """For parameter tuning of OS-CFAR."""
 
     with open('dataSet', 'rb') as f:
         dataSet = pickle.load(f)
+    rnd.shuffle(dataSet)
 
-    #Choose from: 'Threshold', 'OS-CFAR', 'CAGO-CFAR'
-    detection = 'OS-CFAR' 
-
+    #Choose from: 'Threshold', 'OS-CFAR'
+    detection = 'OS-CFAR'
+    
     hit=0
+    t = time.time()
     for w, x, label in dataSet:
         y_peak = label[0]
 
@@ -128,21 +81,21 @@ if __name__ == '__main__':
             widths = peak_widths(x, idx_peak, rel_height=param_width)
         elif detection=='OS-CFAR':
             idx_peak, n_peak, thresh = OS_CFAR(x, N=200, T=7, N_protect=20)
-            param_width = 0.9
+            param_width = 0.7
             widths = peak_widths(x, idx_peak, rel_height=param_width)
-        elif detection=='CAGO-CFAR':
-            idx_peak, n_peak, thresh = CAGO_CFAR(x, N=256, T=7, N_protect=10)
-
-        plt.plot(x)
-        plt.plot(idx_peak, x[idx_peak], 'x')
-        plt.plot(thresh)
+        #plt.plot(x)
+        #plt.plot(idx_peak, x[idx_peak], 'x')
+        #plt.plot(thresh)
         #plt.hlines(param_peak, 0, 1023, color='green')
-        plt.title("Peaks: {0}, f(x)={1}".format(int(y_peak), n_peak))
-        plt.hlines(*widths[1:], color="C2")
-        plt.grid()
-        plt.show()
-        hit += np.exp(-0.69*np.square(y_peak-n_peak))
-    print("Accuracy: {0}\%".format(hit/len(dataSet)*100))
+        #plt.title("Peaks: {0}, f(x)={1}".format(int(y_peak), n_peak))
+        #plt.hlines(*widths[1:], color="C2")
+        #plt.grid()
+        #plt.show()
+        hit += np.exp(np.log(0.5)*np.square(y_peak-n_peak))
+    accuracy = hit / len(dataSet)
+
+    print("Accuracy: {0}\%".format(accuracy*100))
+    print("Elapsed time: {0:.2g}s".format(time.time()-t))
 
     # accuracy=0.5 == +-1 peak misclassified
 
