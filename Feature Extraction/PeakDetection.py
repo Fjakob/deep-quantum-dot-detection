@@ -83,20 +83,23 @@ if __name__ == '__main__':
             idx_peak, n_peak, thresh = OS_CFAR(x, N=200, T=7, N_protect=20)
             param_width = 0.7
             widths = peak_widths(x, idx_peak, rel_height=param_width)
-        #plt.plot(x)
-        #plt.plot(idx_peak, x[idx_peak], 'x')
-        #plt.plot(thresh)
+        plt.plot(x)
+        plt.plot(idx_peak, x[idx_peak], 'x')
+        plt.plot(thresh)
         #plt.hlines(param_peak, 0, 1023, color='green')
         #plt.title("Peaks: {0}, f(x)={1}".format(int(y_peak), n_peak))
-        #plt.hlines(*widths[1:], color="C2")
-        #plt.grid()
-        #plt.show()
+        plt.hlines(*widths[1:], color="C2")
+        plt.grid()
+        plt.show()
         hit += np.exp(np.log(0.5)*np.square(y_peak-n_peak))
+        #programPause = input("Press the <ENTER> key to continue...")
     accuracy = hit / len(dataSet)
 
     print("Accuracy: {0}\%".format(accuracy*100))
     print("Elapsed time: {0:.2g}s".format(time.time()-t))
 
     # accuracy=0.5 == +-1 peak misclassified
+
+
 
 

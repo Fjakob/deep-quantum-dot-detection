@@ -113,6 +113,8 @@ class App(tk.Tk):
         menubar.add_cascade(label="Label File", menu=label_menu)
         menubar.add_cascade(label="Info", menu=info_menu)
 
+        self.open_file()
+
 
     def open_folder(self):
         """Asks for folder with relevant subfolders/files."""
@@ -130,7 +132,7 @@ class App(tk.Tk):
     def open_file(self):
         """Browses through 100 specifically selected files."""
         folder = "2021-08-09_alpha_map01_X3808_Y2152_Z4227_mp450mV_ab100nW_SS1um_IT500ms_50x50um"
-        os.chdir(os.getcwd() + "\\" + folder)
+        #os.chdir(os.getcwd() + "\\" + folder)
         # search for '.DAT' files
         files = glob.glob(os.getcwd() + '/*.' + 'DAT')
         # get progress
