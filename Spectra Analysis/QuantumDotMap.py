@@ -2,6 +2,7 @@ import os
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 
 def readFiles(dir):
@@ -39,6 +40,9 @@ if __name__ == '__main__':
 
     # extract spectras
     wavelengths, spectras = readFiles(dir)
+
+    with open("dataSetSample", "wb") as fp:
+        pickle.dump(spectras, fp)
 
     # plot grid with maximum spectrum peak as colormap
     x = y = np.linspace(-3000,3000,31)

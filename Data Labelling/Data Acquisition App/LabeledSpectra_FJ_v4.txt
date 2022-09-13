@@ -1,7 +1,0 @@
-label 0 -2 date 2022-08-19 user FJ file 2021-09-20_map08_3000um_0700um_650mV\map_08_ab30nW_ramp_0to1500mV_X-6.00E+03_Y-2.60E+04_quantum_dot
-label 1 1 date 2022-08-19 user FJ file 2021-09-20_map09_3000um_0790um_rect_650mV-1250mV\map_09_ab30nW_rect_650and1250mV_X1.60E+04_Y4.40E+04_quantum_dot
-label 1 2 date 2022-08-19 user FJ file 2022-07-11_map13_2660um_0700um_100x50_650mV-1250mV\map_13_ab30nW_rect_650and1250mV_X-2.60E+04_Y1.90E+04_quantum_dot
-label 0 2 date 2022-08-19 user FJ file 2022-07-11_map15_2760um_0700um_100x32_650mV-1250mV\map_14_ab30nW_rect_650and1250mV_X-2.20E+04_Y-1.00E+03_quantum_dot
-label 0 -2 date 2022-08-19 user FJ file 2022-07-11_map17_3010um_0700um_200x50_650mV-1250mV\map_17_ab30nW_rect_650and1250mV_X8.20E+04_Y-1.50E+04_quantum_dot
-label 3 -1 date 2022-08-19 user FJ file 2021-09-17_map03_3000um_2500um\map_03_ab20nW_ramp_0to1500mV_X-2.40E+04_Y4.40E+04_quantum_dot
-label 0 -2 date 2022-08-19 user FJ file 2021-09-20_map11_3090um_0700um_rect_650mV-1250mV\map_11_ab30nW_rect_650and1250mV_X-6.00E+03_Y-3.20E+04_quantum_dot

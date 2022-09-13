@@ -61,13 +61,12 @@ def mergeConsecutivePeaks(peak_indices, x):
 if __name__ == '__main__':
     """For parameter tuning of OS-CFAR."""
 
-    with open('dataSet', 'rb') as f:
+    with open('dataSetSample', 'rb') as f:
         dataSet = pickle.load(f)
-    rnd.shuffle(dataSet)
 
     #Choose from: 'Threshold', 'OS-CFAR'
     detection = 'OS-CFAR'
-    
+
     hit=0
     t = time.time()
     for w, x, label in dataSet:
@@ -99,6 +98,7 @@ if __name__ == '__main__':
     print("Elapsed time: {0:.2g}s".format(time.time()-t))
 
     # accuracy=0.5 == +-1 peak misclassified
+    
 
 
 

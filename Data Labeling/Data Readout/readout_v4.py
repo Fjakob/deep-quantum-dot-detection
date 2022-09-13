@@ -1,3 +1,4 @@
+from ctypes.wintypes import DWORD
 import os
 import random as rnd
 import numpy as np
@@ -13,11 +14,10 @@ def loadDataSet(label_dir, data_dir):
             lines = f.readlines()
             for line in lines:
                 line = line.split()
-                labels = np.asarray(line[1:2]).astype(float)
+                labels = np.asarray(line[1:3]).astype(float)
                 #date = line[7]
                 #user = line[9]
                 path = data_dir + line[-1] + ".dat"
-                print(path)
                 try:
                     with open(path) as f:
                         lines = f.readlines()
@@ -26,18 +26,19 @@ def loadDataSet(label_dir, data_dir):
                         # read spectrum
                         spectrum_raw = [line.split()[1] for line in lines]
                         spectrum = np.asarray(spectrum_raw).astype(float)
-                        dataSet.append((w, spectrum, labels))
+                    w_min, w_max, dw = w[0], w[-1], (w[-1]-w[0])/1024
+                    dataSet.append(((w_min, w_max, dw), spectrum, labels))
                 except(FileNotFoundError):
-                    raise
+                    pass
     return dataSet
 
 
 if __name__ == '__main__':
 
-    plot = False
+    plot = True
 
     # Specify working directories
-    label_dir = 'LabeledSpectra_v3'
+    label_dir = 'LabeledSpectra_v4'
     data_dir = "..\\..\\..\\04_Daten\\Maps_for_ISYS\\"
 
     # Load dataset
@@ -50,6 +51,7 @@ if __name__ == '__main__':
 
     if plot:
         for w, spec, label in dataSet:
+            w = np.arange(w[0], w[1], w[2])
             plt.plot(w,spec)
             plt.title(str(label[0]) + " peaks, " 
                         + str(label[1]) + " impression") 
@@ -57,15 +59,5 @@ if __name__ == '__main__':
                        # + str(label[3]) + " distinctness, " 
                        # + str(label[4]) + " width")
             plt.show()
-
-    for w, x, label in dataSet:
-        y = label[1]
-        try:
-            Y = np.vstack((Y, y))
-        except(NameError):
-            Y = y
-    plt.hist(Y)
-    plt.title('Spectrum Impressions')
-    plt.show()
 
 

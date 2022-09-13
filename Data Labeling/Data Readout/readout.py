@@ -53,9 +53,6 @@ if __name__ == '__main__':
             plt.plot(w,spec)
             plt.title(str(label[0]) + " peaks, " 
                         + str(label[1]) + " impression") 
-                       # + str(label[2]) + " background\n" 
-                       # + str(label[3]) + " distinctness, " 
-                       # + str(label[4]) + " width")
             plt.show()
 
     for w, x, label in dataSet:
