@@ -18,20 +18,20 @@ def OS_CFAR(x, N=32, T=5, k=None, N_protect=0):
     n = len(x)
     peaks, thresh = [], []
     for idx in range(n):
-        # Collect Window around CUT
+        # Collect Window around CUT and sort values in ascending order
         # idx-N/2 | ... | idx-1 | (idx) | idx+1 | ... | idx+N/2
         X_left  = [x[idx+jdx] for jdx in range(int(N_protect/2)+1, int((N+N_protect)/2)+1) if idx+jdx < n-1]
         X_right = [x[idx-jdx] for jdx in range(int(N_protect/2)+1, int((N+N_protect)/2)+1) if idx-jdx > 0]
-        # sort Window in ascending order
         X = X_left + X_right
         X.sort()
+
         # edit k, if Window length is not N (case e.g. in signal boundaries)
         if len(X) != N:
             k = round(3/4*len(X))
-        # calculate threshold based on ordered statistics X
+
         threshold = X[k]*T
         thresh.append(threshold)
-        # OS-CFAR test
+
         if x[idx] > threshold:
             peaks.append(idx)
 
@@ -40,7 +40,6 @@ def OS_CFAR(x, N=32, T=5, k=None, N_protect=0):
         peaks = mergeConsecutivePeaks(peaks,x)
         n_peaks = len(peaks)
     elif not peaks:
-        # No peaks
         n_peaks = 0
     else:
         n_peaks = 1
@@ -61,7 +60,7 @@ def mergeConsecutivePeaks(peak_indices, x):
 if __name__ == '__main__':
     """For parameter tuning of OS-CFAR."""
 
-    with open('dataSetSample', 'rb') as f:
+    with open('dataSets/classificationData', 'rb') as f:
         dataSet = pickle.load(f)
 
     #Choose from: 'Threshold', 'OS-CFAR'
