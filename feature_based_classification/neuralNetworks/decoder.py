@@ -1,6 +1,5 @@
 from torch import nn, sigmoid
 
-
 class decoder(nn.Module):
     """ Decoder neural network consisting of 4 inverted convolutional layers. """
     def __init__(self, latent_dim):

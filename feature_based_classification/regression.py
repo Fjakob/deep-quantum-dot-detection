@@ -8,7 +8,7 @@ from tqdm import tqdm
 # Feature extraction
 from scipy.signal import peak_widths
 from scipy.stats import entropy
-from peak_detection import OS_CFAR
+from peakDetectors.OS_CFAR import OS_CFAR
 
 # For data preprocessing:
 from sklearn.model_selection import train_test_split
