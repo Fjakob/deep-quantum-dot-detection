@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import pickle
 from scipy.signal import find_peaks, peak_widths
 import time
-from peakDetectors.OS_CFAR import OS_CFAR
+from lib.peakDetectors.OS_CFAR import OS_CFAR
 
 def detection():
-    """For parameter tuning of OS-CFAR."""
+    """ OS-CFAR test on QD-spectra. """
 
     with open('dataSets/classificationData', 'rb') as f:
         dataSet = pickle.load(f)
