@@ -1,5 +1,5 @@
 import numpy as np
-from lib.peakDetectors.peak_detector import Peak_Detector
+from src.lib.peakDetectors.peak_detector import Peak_Detector
 
 class OS_CFAR(Peak_Detector):
     """ Class of Ordered-Statistics Constant-False-Alarm-Rate (OS-CFAR) Detector. """

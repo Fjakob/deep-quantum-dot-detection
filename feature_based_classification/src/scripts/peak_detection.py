@@ -1,9 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pickle
-from scipy.signal import find_peaks, peak_widths
+from __config__ import *
+
 import time
-from lib.peakDetectors.OS_CFAR import OS_CFAR
+from scipy.signal import find_peaks, peak_widths
+from lib.peakDetectors.os_cfar import OS_CFAR
 
 def detection():
     """ OS-CFAR test on QD-spectra. """

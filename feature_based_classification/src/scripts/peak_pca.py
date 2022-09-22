@@ -1,9 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pickle
-import scipy.sparse.linalg as linalg
-from lib.peakDetectors.OS_CFAR import OS_CFAR
-from lib.dimensionReduction.pca import PCA
+from __config__ import *
+
+from src.lib.peakDetectors.os_cfar import OS_CFAR
+from src.lib.dimensionReduction.pca import PCA
 
 
 def extract_principal_peaks():
@@ -27,3 +25,5 @@ def extract_principal_peaks():
 
 if __name__ == "__main__":
     extract_principal_peaks()
+
+

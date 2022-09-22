@@ -1,5 +1,5 @@
 import numpy as np
-from lib.dimensionReduction.pca import PCA
+from src.lib.dimensionReduction.pca import PCA
 
 def test_instanciation():
     """ Tests the instanciation of the autoencoder class. """

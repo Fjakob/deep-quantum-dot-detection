@@ -1,24 +1,14 @@
-import os
-import random as rnd
-import numpy as np
-import matplotlib.pyplot as plt
-import pickle
-from tqdm import tqdm
+from __config__ import *
 
-# Feature extraction
+from tqdm import tqdm
 from scipy.signal import peak_widths
 from scipy.stats import entropy
-from peakDetectors.OS_CFAR import OS_CFAR
+from lib.peakDetectors.os_cfar import OS_CFAR
 
-# For data preprocessing:
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import shuffle
-
-# Regressors:
 from sklearn.gaussian_process import GaussianProcessRegressor, kernels
-
-# k-Fold Cross Validation:
 from sklearn.model_selection import KFold
 
 
@@ -34,10 +24,10 @@ def loadDataSet(filename):
             Y = y
     return X, Y
 
-def extractFeatures(x):
+def extractFeatures(x, detector):
     features = dict()
     # Number of peaks, location of peaks:
-    peak_idx, n_peak, _ = OS_CFAR(x, N=200, T=7, N_protect=20)
+    peak_idx, n_peak, _ = detector.detect(x)
     features["N_peaks"] = n_peak
     # Entropy with white noise:
     np.random.seed(1)
@@ -75,9 +65,9 @@ def extractFeatures(x):
         features["Max Peak height"] = 0
     return features
 
-def to_features(X):
+def to_features(X, detector):
         for x in X:
-            v = np.asarray(list(extractFeatures(x).values()))
+            v = np.asarray(list(extractFeatures(x, detector).values()))
             try:
                 V = np.vstack((V, v))
             except(NameError):
@@ -88,11 +78,12 @@ def to_features(X):
 if __name__ == "__main__":
 
     # Data loading
-    X, Y = loadDataSet('RegressionData')
+    X, Y = loadDataSet('dataSets/regressionData')
     X, Y = shuffle(X, Y)
     Y = np.ravel(Y) #delete inner dimension
 
-    V = to_features(X)
+    detector = OS_CFAR(N=200, T=7, N_protect=20)
+    V = to_features(X, detector)
 
     # (If data set is big:) Splitting Data into Train and Test
     V_train, V_test, Y_train, Y_test = train_test_split(V, Y, test_size=0.15)
@@ -137,6 +128,6 @@ if __name__ == "__main__":
         x_test, y_test = X[idx], Y[idx]
         plt.plot(x_test)
         plt.show()
-        y_bar, var = gpr.predict(scaler.transform([to_features([x_test])]), return_std=True)
+        y_bar, var = gpr.predict(scaler.transform([to_features([x_test], detector)]), return_std=True)
         print("Real label: {} \nPredicted: {} (with variance: {})".format(y_test, y_bar[0], var[0]))
 

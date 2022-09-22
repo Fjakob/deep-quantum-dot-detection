@@ -1,16 +1,16 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pickle
+from __config__ import *
+
 import torch
 from torchsummary import summary
-from lib.dimensionReduction.autoencoder import autoencoder
-from lib.dimensionReduction.pca import PCA
+
+from src.lib.dimensionReduction.autoencoder import autoencoder
+from src.lib.dimensionReduction.pca import PCA
 
 
 def load_autoencoder(latent_dim=12):
     """ Loads saved model into a new autoencoder instance. """
 
-    model_path = 'autoencoders/autoencoder{}.pth'.format(latent_dim)
+    model_path = 'src/autoencoders/autoencoder{}.pth'.format(latent_dim)
 
     model_autoencoder = autoencoder(latent_dim).to('cuda')
     model_autoencoder.load_state_dict(torch.load(model_path))
@@ -70,6 +70,5 @@ def plot_comparison(X, X_recon, X_recon_pca, plots=20):
 
 
 if __name__ == '__main__':
-    compare_dimension_reduction(dim_ae=128, dim_pca=128)
+    compare_dimension_reduction(dim_ae=12, dim_pca=12)
     
-

@@ -1,7 +1,7 @@
 import numpy as np
 from torch import nn, tensor
-from lib.neuralNetworks.encoder import residualEncoder as encoder
-from lib.neuralNetworks.decoder import decoder_deep as decoder
+from src.lib.neuralNetworks.encoder import residualEncoder as encoder
+from src.lib.neuralNetworks.decoder import decoder_deep as decoder
 
 class autoencoder(nn.Module):
     """ Autoencoder for dimensionality reduction. """
@@ -20,18 +20,19 @@ class autoencoder(nn.Module):
         Takes raw unnormalized dataset in numpy data format;
         returns normalized data, reconstruction and latent respresentation in numpy data format. 
         """
+        # normalize and convert to torch
         X_scaled = X / np.max(np.abs(X), axis=1)[:,np.newaxis]
-
         X = tensor(X_scaled, device='cuda').float()
         X = X.view(X.shape[0], 1, X.shape[1])
+
+        # encode / decode dataset
         Z = self.encoder(X)
         X_hat = self.decoder(Z)
 
-        # convert from torch to np
+        # convert from to np
         Z = Z.cpu().detach().numpy()
         X = X.cpu().detach().numpy()
         X_hat = X_hat.cpu().detach().numpy()
 
         return np.squeeze(X), Z, np.squeeze(X_hat)
-
 
