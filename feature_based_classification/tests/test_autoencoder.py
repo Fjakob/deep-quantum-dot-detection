@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from src.lib.dimensionReduction.autoencoder import autoencoder
+from src.lib.dimensionReduction.autoencoder import Autoencoder
 
 class TestAutoencoder():
 
@@ -13,31 +13,26 @@ class TestAutoencoder():
 
     """ Test functions. """
     def test_instanciation(self):
-        """ Tests the instanciation of the autoencoder class. """
-        ae = autoencoder()
-        assert isinstance(ae, autoencoder)
+        """ Tests the instanciation of the Autoencoder class. """
+        ae = Autoencoder()
+        assert isinstance(ae, Autoencoder)
 
 
     def test_dimensions(self):
-        """ Tests latent and output dimension of autoencoder call. """
-        ae = autoencoder(latent_dim=12)
+        """ Tests latent and output dimension of Autoencoder call. """
+        ae = Autoencoder(latent_dim=12)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-        input = torch.rand(4,1,1024)
+        input = torch.rand(4,1,1024, device=device)
         latent = ae.encoder(input)
         output = ae(input)
 
         assert self.compare_tensor_sizes(latent, torch.randn(4,12))
         assert self.compare_tensor_sizes(input, output)
 
-
-    def test_cuda(self):
-        """ Tests whether cuda is available on device. """
-        assert torch.cuda.is_available()
-
-
     def test_reduce_raw(self):
-        """ Tests the autoencoder processing of raw datasets. """
-        ae = autoencoder(latent_dim=12).to('cuda')
+        """ Tests the Autoencoder processing of raw datasets. """
+        ae = Autoencoder(latent_dim=12)
 
         X = np.random.randn(4,1024)
         X_norm, Z, X_rec = ae.normalize_and_reduce(X)
