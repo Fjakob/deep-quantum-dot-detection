@@ -1,38 +1,42 @@
 import numpy as np
-from torch import nn, tensor
-from src.lib.neuralNetworks.encoder import residualEncoder as encoder
-from src.lib.neuralNetworks.decoder import decoder_deep as decoder
+from torch import nn, tensor, cuda
 
-class autoencoder(nn.Module):
+from src.lib.dimensionReduction.dim_reducer import DimReducer
+from src.lib.neuralNetworks.encoder import ResidualEncoder as Encoder
+from src.lib.neuralNetworks.decoder import DeepDecoder as Decoder
+
+class Autoencoder(nn.Module, DimReducer):
     """ Autoencoder for dimensionality reduction. """
     def __init__(self, latent_dim=12):
-        super(autoencoder, self).__init__()
-        self.encoder = encoder(latent_dim)
-        self.decoder = decoder(latent_dim)
+        super(Autoencoder, self).__init__()
+        assert latent_dim > 0, "Latent space must be positive number!"
+        device = "cuda" if cuda.is_available() else "cpu"
+
+        self.encoder = Encoder(latent_dim)
+        self.decoder = Decoder(latent_dim)
+
+        self.device = device
+        self.to(device)
         
     def forward(self, input):
         encoded = self.encoder(input)
         decoded = self.decoder(encoded)
         return decoded
 
-    def reduce_raw(self, X):
-        """ 
-        Takes raw unnormalized dataset in numpy data format;
-        returns normalized data, reconstruction and latent respresentation in numpy data format. 
-        """
+    def reduce(self, X_normalized, return_reconstruction=False):
         # normalize and convert to torch
-        X_scaled = X / np.max(np.abs(X), axis=1)[:,np.newaxis]
-        X = tensor(X_scaled, device='cuda').float()
+        X = tensor(X_normalized, device=self.device).float()
         X = X.view(X.shape[0], 1, X.shape[1])
 
-        # encode / decode dataset
+        # encode and convert to numpy
         Z = self.encoder(X)
-        X_hat = self.decoder(Z)
 
-        # convert from to np
+        if return_reconstruction:
+            X_recon = self.decoder(Z)
+            X_recon = np.squeeze(X_recon.cpu().detach().numpy())
+            Z = Z.cpu().detach().numpy()
+            return Z, X_recon
+
         Z = Z.cpu().detach().numpy()
-        X = X.cpu().detach().numpy()
-        X_hat = X_hat.cpu().detach().numpy()
-
-        return np.squeeze(X), Z, np.squeeze(X_hat)
+        return Z
 

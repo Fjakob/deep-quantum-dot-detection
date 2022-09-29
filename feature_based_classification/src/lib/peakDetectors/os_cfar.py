@@ -1,9 +1,21 @@
 import numpy as np
-from src.lib.peakDetectors.peak_detector import Peak_Detector
+import pickle
+from scipy.optimize import minimize
 
-class OS_CFAR(Peak_Detector):
+from src.lib.peakDetectors.peak_detector import PeakDetector
+
+class OS_CFAR(PeakDetector):
     """ Class of Ordered-Statistics Constant-False-Alarm-Rate (OS-CFAR) Detector. """
     def __init__(self, N=32, T=5, k=None, N_protect=0):
+
+        assert 0 < N, "N must be bigger than zero!"
+        assert 0 <= N_protect, "N_protect must be bigger than or equal to zero!" 
+        if k is None:
+            k = round(3/4*N)
+        else:
+            assert 0 < k, "k must be bigger than zero!"
+            assert k < N, "k must be smaller than N!"        
+
         self.N = N
         self.T = T
         self.k = k
@@ -11,13 +23,8 @@ class OS_CFAR(Peak_Detector):
 
 
     def detect(self, x):
-        """ TODO """
+        """ Return indices of peaks in signal x along with respective peak threshold. """
         N, T, k, N_protect = self.N, self.T, self.k, self.N_protect
-
-        if k is None:
-            k = round(3/4*N)
-        else:
-            assert k < N, "k cannot be bigger than N!"
 
         n = len(x)
         peak_indices, thresholds = [], []
@@ -52,34 +59,39 @@ class OS_CFAR(Peak_Detector):
 
 
     def optimize_parameters(self, labeled_data_set):
-        """ TODO """
-        pass
+        """ Optimized N, T and N_protect in OS-CFAR-detector. """
+        X, Y = labeled_data_set
+
+        w_init = np.asarray([self.N, self.T, self.N_protect])
+        initial_simplex = np.asarray([w_init,
+                                     [32, 5, 1],
+                                     [100, 6, 60],
+                                     [300, 4, 10]])
+
+        minimize(self.cost_function, w_init, method='nelder-mead', args=(X, Y), 
+                  options={'xatol': 1e-2, 'disp': False, 'initial_simplex': initial_simplex})
+        
+        print(f"Optimized Parameters: N={self.N}, T={self.T}, N_protect={self.N_protect}")
 
 
-    def isolate_peak_neighbourhoods(self, X, neighbourhood_width):
-        """ Returns neighbourhoods of every detected peak in a data set. """
-        peak_snippets = []
-        for x in X:
-            peak_indices, _, _ = self.detect(x)
-            max_idx = len(x)
+    def cost_function(self, w, X, Y):
+        """ 
+        Cost function for parameter optimization
+        Constraint 1: N, T, N_protect > 0!
+        Constraint 2: len(x) > N !
+        """
+        N, T, N_protect = int(round(w[0])), float(w[1]), int(round(w[2]))
+        print(f"Parameters: N={N}, T={T}, N_protect={N_protect}")
 
-            # extract neighbourhood around every detected peak
-            for peak_idx in peak_indices:
-                idx_left = peak_idx - neighbourhood_width
-                idx_right = peak_idx + neighbourhood_width + 1
+        # check constraint violation
+        if (w <= 0).any() or w[0] >= len(X[0]):
+            print("Invalid parameters, restart.\n")
+            return 1.0
 
-                # Check if neighbourhood falls out of signal
-                if idx_left < 0:
-                    padding_left = np.zeros( abs(idx_left) )
-                    x_snippet = np.concatenate( (padding_left, x[0:idx_right]) )
-                elif idx_right > max_idx:
-                    padding_right = np.zeros( idx_right - max_idx )
-                    x_snippet = np.concatenate( (x[idx_left:max_idx], padding_right) )
-                else:
-                    x_snippet = x[idx_left:idx_right]
-
-                peak_snippets.append(x_snippet)
-
-        return peak_snippets
+        # determine accuracy with updated parameters
+        self.N, self.T, self.N_protect = N, T, N_protect
+        acc = self.accuracy(X, Y)
+        print(f"Achieved accuracy: {acc}\n")
+        return -acc + 0.1*N/len(X[0])
 
 

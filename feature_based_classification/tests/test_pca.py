@@ -1,4 +1,5 @@
 import numpy as np
+
 from src.lib.dimensionReduction.pca import PCA
 
 def test_instanciation():

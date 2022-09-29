@@ -1,7 +1,7 @@
 from torch import nn, flatten
-from src.lib.neuralNetworks.residualUnit import residualStack
+from src.lib.neuralNetworks.residual_unit import ResidualStack
 
-class encoder(nn.Module):
+class Encoder(nn.Module):
     """ Encoder neural network consisting of 4 convolutional layers. """
     def __init__(self, latent_dim):
         super().__init__()
@@ -37,16 +37,16 @@ class encoder(nn.Module):
 
 
 
-class residualEncoder(nn.Module):
+class ResidualEncoder(nn.Module):
     """ Encoder neural network consisting of 4 residual unis. """
     def __init__(self, latent_dim):
         super().__init__()
         self.pool   = nn.MaxPool1d(3)
         self.drop = nn.Dropout(0.3)
-        self.resUnit1 = residualStack(1, 16, kernel_size=3)
-        self.resUnit2 = residualStack(16, 32, kernel_size=3)
-        self.resUnit3 = residualStack(32, 64, kernel_size=3)
-        self.resUnit4 = residualStack(64, 128, kernel_size=3)
+        self.resUnit1 = ResidualStack(1, 16, kernel_size=3)
+        self.resUnit2 = ResidualStack(16, 32, kernel_size=3)
+        self.resUnit3 = ResidualStack(32, 64, kernel_size=3)
+        self.resUnit4 = ResidualStack(64, 128, kernel_size=3)
         self.dense    = nn.Linear(128*12, latent_dim)
 
     def forward(self, x):

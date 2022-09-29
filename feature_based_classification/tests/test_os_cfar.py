@@ -1,4 +1,5 @@
 import numpy as np
+
 from src.lib.peakDetectors.os_cfar import OS_CFAR
 
 def test_cfar_instanciation():

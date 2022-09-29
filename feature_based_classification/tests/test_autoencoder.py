@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+
 from src.lib.dimensionReduction.autoencoder import autoencoder
 
 class TestAutoencoder():
@@ -39,7 +40,7 @@ class TestAutoencoder():
         ae = autoencoder(latent_dim=12).to('cuda')
 
         X = np.random.randn(4,1024)
-        X_norm, Z, X_rec = ae.reduce_raw(X)
+        X_norm, Z, X_rec = ae.normalize_and_reduce(X)
 
         assert isinstance(X_rec, np.ndarray)
         assert X_norm.shape[0] == X_rec.shape[0] and X_norm.shape[1] == X_rec.shape[1]
