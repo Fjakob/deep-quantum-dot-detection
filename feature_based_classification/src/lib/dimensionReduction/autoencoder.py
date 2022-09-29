@@ -1,5 +1,6 @@
 import numpy as np
-from torch import nn, tensor, cuda
+from torch import nn, cuda, tensor, load
+from torchsummary import summary
 
 from src.lib.dimensionReduction.dim_reducer import DimReducer
 from src.lib.neuralNetworks.encoder import ResidualEncoder as Encoder
@@ -17,11 +18,22 @@ class Autoencoder(nn.Module, DimReducer):
 
         self.device = device
         self.to(device)
-        
+
+
     def forward(self, input):
         encoded = self.encoder(input)
         decoded = self.decoder(encoded)
         return decoded
+
+
+    def load_model(self, model_path):
+        """ Loads neural network weights and biases from saved pretrained model. """
+        try:
+            self.load_state_dict(load(model_path))
+            summary(self, (1,1024))
+        except(RuntimeError):
+            raise ValueError("Loaded model doesn't fit object latent dimension.")
+
 
     def reduce(self, X_normalized, return_reconstruction=False):
         # normalize and convert to torch

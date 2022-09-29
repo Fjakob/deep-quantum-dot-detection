@@ -1,7 +1,6 @@
 from __config__ import *
 
 import torch
-from torchsummary import summary
 from os.path import isfile
 
 from src.lib.dimensionReduction.autoencoder import Autoencoder
@@ -11,20 +10,16 @@ from src.lib.dimensionReduction.pca import PCA
 def load_autoencoder(latent_dim=12):
     """ Loads saved model into a new autoencoder instance. """
 
-    device = "GPU" if torch.cuda.is_available() else "CPU"
-
-    model_path = f"models/autoencoders/{device}/autoencoder{latent_dim}.pth"
+    model_path = f"models/autoencoders/autoencoder{latent_dim}.pth"
 
     if not isfile(model_path):
         print(f"No autoencoder model found for latent dimension {latent_dim}.\n")
-        print(f"Availabel models for {device} support:")
-        print(os.listdir(f"src/autoencoders/{device}"))
+        print("Availabel models:\n" + str(os.listdir("models/autoencoders")))
         exit()
 
     autoencoder = Autoencoder(latent_dim)
-    autoencoder.load_state_dict(torch.load(model_path))
+    autoencoder.load_model(model_path)
 
-    summary(autoencoder, (1,1024))
     return autoencoder
 
 
@@ -79,8 +74,8 @@ def main():
     X, _ = load_dataset('dataSets/regressionData')
     np.random.shuffle(X)
 
-    X_norm, Z, X_hat = autoencoder.normalize_and_reduce(X)
-    X_norm, Z_pca, X_hat_pca = pca.normalize_and_reduce(X)
+    X_norm, _, X_hat = autoencoder.normalize_and_reduce(X)
+    _, _, X_hat_pca = pca.normalize_and_reduce(X)
 
     plot_comparison(X_norm, X_hat, X_hat_pca, plots=15)
 
