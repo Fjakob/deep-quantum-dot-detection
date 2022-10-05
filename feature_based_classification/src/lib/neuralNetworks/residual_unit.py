@@ -1,5 +1,6 @@
 from torch import nn
 
+
 class ResidualBlock(nn.Module):
     """ Residual Block, consisting of two channel and size invariant convolutions with skip connection. """
     def __init__(self, channel_num, kernel_size, mode='encode'):
@@ -24,6 +25,7 @@ class ResidualBlock(nn.Module):
         x = x + residual
         out = self.activation(x)
         return out
+
 
 
 class ResidualStack(nn.Module):

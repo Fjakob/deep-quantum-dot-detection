@@ -3,7 +3,7 @@ from __config__ import *
 from src.lib.peakDetectors.os_cfar import OS_CFAR
 from src.lib.peakDetectors.threshold_detector import ThresholdDetector
 
-from src.lib.dimensionReduction.pca import PCA
+#from src.lib.dimensionReduction.pca import PCA
 
 
 def extract_principal_peaks():

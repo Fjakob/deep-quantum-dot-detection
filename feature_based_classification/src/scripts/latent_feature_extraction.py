@@ -3,8 +3,8 @@ from __config__ import *
 import torch
 from os.path import isfile
 
-from src.lib.dimensionReduction.autoencoder import Autoencoder
-from src.lib.dimensionReduction.pca import PCA
+from src.lib.featureExtraction.autoencoder import Autoencoder
+from src.lib.featureExtraction.pca import PCA
 
 
 def load_autoencoder(latent_dim=12):

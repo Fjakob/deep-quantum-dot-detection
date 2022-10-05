@@ -4,6 +4,7 @@ from scipy.optimize import minimize
 
 from src.lib.peakDetectors.peak_detector import PeakDetector
 
+
 class OS_CFAR(PeakDetector):
     """ Class of Ordered-Statistics Constant-False-Alarm-Rate (OS-CFAR) Detector. """
     def __init__(self, N=32, T=5, k=None, N_protect=0):

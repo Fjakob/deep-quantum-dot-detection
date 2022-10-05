@@ -33,7 +33,7 @@ class ThresholdDetector(PeakDetector):
         X, Y = labeled_data_set
 
         w_init = self.threshold
-        initial_simplex = np.asarray([[w_init], [120]])
+        initial_simplex = np.asarray([[w_init], [1.1*w_init]])
 
         minimize(self.cost_function, w_init, method='nelder-mead', args=(X, Y), 
                   options={'xatol': 1e-2, 'disp': False, 'initial_simplex': initial_simplex})

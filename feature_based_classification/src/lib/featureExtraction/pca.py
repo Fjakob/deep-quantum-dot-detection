@@ -2,9 +2,10 @@ import numpy as np
 import scipy.sparse.linalg as linalg
 import matplotlib.pyplot as plt
 
-from src.lib.dimensionReduction.dim_reducer import DimReducer
+from src.lib.featureExtraction.feature_extracter import FeatureExtracter
 
-class PCA(DimReducer):
+
+class PCA(FeatureExtracter):
     """ Principal Component Analysis class for dimensionality reduction. """
     def __init__(self, latent_dim=12):
         self.latent_dim = latent_dim
@@ -43,8 +44,7 @@ class PCA(DimReducer):
 
     def plot_principal_components(self):
         if self.singular_values is None:
-            print("First fit model to a dataset.")
-            return
+            raise TypeError("First fit model to a dataset.")
         plt.stem(self.singular_values / np.max(self.singular_values))
         plt.ylabel("Significance")
         plt.xlabel("Component")

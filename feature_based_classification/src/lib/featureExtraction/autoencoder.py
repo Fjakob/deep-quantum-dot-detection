@@ -2,15 +2,18 @@ import numpy as np
 from torch import nn, cuda, tensor, load
 from torchsummary import summary
 
-from src.lib.dimensionReduction.dim_reducer import DimReducer
+from src.lib.featureExtraction.feature_extracter import FeatureExtracter
 from src.lib.neuralNetworks.encoder import ResidualEncoder as Encoder
 from src.lib.neuralNetworks.decoder import DeepDecoder as Decoder
 
-class Autoencoder(nn.Module, DimReducer):
+
+class Autoencoder(nn.Module, FeatureExtracter):
     """ Autoencoder for dimensionality reduction. """
     def __init__(self, latent_dim=12):
+        if latent_dim <= 0:
+            raise ValueError("Latent dimension must be positive number")
+
         super(Autoencoder, self).__init__()
-        assert latent_dim > 0, "Latent space must be positive number!"
         device = "cuda" if cuda.is_available() else "cpu"
 
         self.encoder = Encoder(latent_dim)

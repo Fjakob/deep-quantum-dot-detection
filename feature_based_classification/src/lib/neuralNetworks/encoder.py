@@ -1,6 +1,7 @@
 from torch import nn, flatten
 from src.lib.neuralNetworks.residual_unit import ResidualStack
 
+
 class Encoder(nn.Module):
     """ Encoder neural network consisting of 4 convolutional layers. """
     def __init__(self, latent_dim):

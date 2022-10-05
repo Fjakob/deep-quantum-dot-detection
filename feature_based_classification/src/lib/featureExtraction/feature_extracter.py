@@ -2,10 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class DimReducer():
+class FeatureExtracter():
     """ Abstract class for dimension reduction. """
+
     def reduce(self, X_normalized, return_reconstruction=False):
         raise NotImplementedError
+
 
     def normalize_and_reduce(self, X):
         """ Scales raw numpy spectrum to value range [0,1] before reducing. """
@@ -13,7 +15,9 @@ class DimReducer():
         Z, X_recon = self.reduce(X_scaled, return_reconstruction=True)
         return X_scaled, Z, X_recon
 
+
     def plot_reconstructions(self, X, nbr_plots=5):
+        """ Visualizes dimension reducers capability by comparing reconstruction with corresponding input. """
         np.random.shuffle(X)
         _, X_recon = self.reduce(X, return_reconstruction=True)
         for idx in range(nbr_plots):
