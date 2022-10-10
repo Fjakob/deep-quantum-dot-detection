@@ -78,7 +78,7 @@ class OS_CFAR(PeakDetector):
     def cost_function(self, w, X, Y):
         """ 
         Cost function for parameter optimization
-        Constraint 1: N, T, N_protect > 0!
+        Constraint 1: N, T, N_protect > 0 !
         Constraint 2: len(x) > N !
         """
         N, T, N_protect = int(round(w[0])), float(w[1]), int(round(w[2]))

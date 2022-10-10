@@ -26,7 +26,7 @@ class PCA(FeatureExtracter):
         self.mean = mean
 
 
-    def reduce(self, X, return_reconstruction=False):
+    def extract_latent(self, X, return_reconstruction=False):
         """ Reduces input matrix X to lower dimensional latent representation. """
         if self.V is None:
             print("First fit model to a dataset.")

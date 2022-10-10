@@ -29,16 +29,17 @@ class Autoencoder(nn.Module, FeatureExtracter):
         return decoded
 
 
-    def load_model(self, model_path):
+    def load_model(self, model_path, model_summary=True):
         """ Loads neural network weights and biases from saved pretrained model. """
         try:
             self.load_state_dict(load(model_path))
-            summary(self, (1,1024))
         except(RuntimeError):
             raise ValueError("Loaded model doesn't fit object latent dimension.")
+        if model_summary:
+            summary(self, (1,1024))
 
 
-    def reduce(self, X_normalized, return_reconstruction=False):
+    def extract_latent(self, X_normalized, return_reconstruction=False):
         # normalize and convert to torch
         X = tensor(X_normalized, device=self.device).float()
         X = X.view(X.shape[0], 1, X.shape[1])

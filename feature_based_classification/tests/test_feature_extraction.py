@@ -40,8 +40,8 @@ class TestAutoencoder(TestCase):
 
     def test_load_model(self):
         
-        model_path = 'tests/fixtures/autoencoder12.pth'
-        model_path_dim_error = 'tests/fixtures/autoencoder24.pth'
+        model_path = 'tests/fixtures/sample_autoencoders/autoencoder12.pth'
+        model_path_dim_error = 'tests/fixtures/sample_autoencoders/autoencoder24.pth'
 
         autoencoder.load_model(model_path)  
         self.assertRaises(ValueError, autoencoder.load_model, model_path_dim_error)
@@ -50,7 +50,7 @@ class TestAutoencoder(TestCase):
     def test_normalize_and_reduce(self):
         """ Tests the Autoencoder processing of raw datasets. """
         X = np.random.randn(4,1024)
-        X_norm, Z, X_rec = autoencoder.normalize_and_reduce(X)
+        X_norm, Z, X_rec = autoencoder.normalize_and_extract(X)
 
         self.assertIsInstance(Z, np.ndarray)
         self.assertIsInstance(X_rec, np.ndarray)
@@ -87,7 +87,7 @@ class TestPCA(TestCase):
         pca.fit(X_t)
 
         X = np.random.randn(batch_size, dim)
-        Z, X_rec = pca.reduce(X, return_reconstruction=True)
+        Z, X_rec = pca.extract_latent(X, return_reconstruction=True)
 
         self.assertTupleEqual(Z.shape, (batch_size, latent_dim))
         self.assertTupleEqual(X.shape, X_rec.shape)

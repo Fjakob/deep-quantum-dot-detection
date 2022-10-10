@@ -2,8 +2,7 @@ from __config__ import *
 
 from src.lib.peakDetectors.os_cfar import OS_CFAR
 from src.lib.peakDetectors.threshold_detector import ThresholdDetector
-
-#from src.lib.dimensionReduction.pca import PCA
+from src.lib.featureExtraction.pca import PCA
 
 
 def extract_principal_peaks():
@@ -18,7 +17,7 @@ def extract_principal_peaks():
     # extract every peak shape from the dataset
     detector = OS_CFAR(N=190, T=6.9, N_protect=20)
     #detector = ThresholdDetector()
-    detector.optimize_parameters((X,Y))
+    #detector.optimize_parameters((X,Y))
     isolated_peaks = detector.isolate_peak_neighbourhoods(X, neighbourhood_width=20)
 
     # create and fit principal component analyzer
