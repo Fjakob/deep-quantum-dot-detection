@@ -89,7 +89,8 @@ class DataProcesser():
         1) Unify all spectra to same wavelength scope
         2) Filter out noise
         3) Filter out background
-        4) return as np.ndarray
+        4) normalize
+        5) return as np.ndarray
         dataset: python.dict -> np.ndarray
         """
         X = []

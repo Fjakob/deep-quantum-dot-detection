@@ -1,1 +1,0 @@
-"Makes test package found."

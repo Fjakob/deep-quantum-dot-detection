@@ -40,7 +40,7 @@
 
 # PIPELINE III: autoencoder feature based
 # 
-# 1) load whole unlabeled database
+# 1) load whole unlabeled database, filter, normalize and augment
 # 2) train autoencoder in unsupervised manner
 # 3) normalize and augment (space shift, mirror) labeled data
 # 4) extract features with autoencoder (e.g. 20-dim embedding vector)
@@ -58,7 +58,7 @@
 
 # PIPELINE IV: autoencoder reconstruction based
 # 
-# 1) load whole unlabeled database
+# 1) load whole unlabeled database, filter, normalize and augment
 # 2) train autoencoder in unsupervised manner
 # 3) use reconstruction error as a measure of how bad the spectra is (good unnoisy spectra can be reconstructed well)
 # 4) use a neural network to map reconstruction error to label

@@ -1,0 +1,1 @@
+"Makes test package a module."

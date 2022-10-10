@@ -5,9 +5,11 @@ from operator import itemgetter
 class PeakDetector():
     """ Abstract peak detector class. """
 
+
     def detect(self, X):
         """ Return indices of peaks in signal x along with respective peak threshold. """
         raise NotImplementedError
+
 
     def merge_consecutive_peaks(self, peak_indices, x):
         """Merge multiple consecutive peak indices to the one corresponding to the highest value in x."""
@@ -18,6 +20,7 @@ class PeakDetector():
             mergedPeaks.append(group[np.argmax(x[group])])
         return mergedPeaks
 
+
     def accuracy(self, X, Y):
         """ Returns detector accuracy on given dataset. """
         hit = 0
@@ -27,8 +30,10 @@ class PeakDetector():
         accuracy = hit / len(X)
         return accuracy
 
+
     def optimize_parameters(self, labeled_data_set):
         raise NotImplementedError
+
 
     def isolate_peak_neighbourhoods(self, X, neighbourhood_width):
         """ Returns neighbourhoods of every detected peak in a data set. """
