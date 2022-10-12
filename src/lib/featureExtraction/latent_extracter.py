@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class FeatureExtracter():
+class LatentExtracter():
     """ Abstract class for dimension reduction. """
 
     def extract_latent(self, X_normalized, return_reconstruction=False):

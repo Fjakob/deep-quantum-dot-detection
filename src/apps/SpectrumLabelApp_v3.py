@@ -1,7 +1,6 @@
 """
-Labelling App Version 4
-
-Second release for quantum spectrum labelling
+Labelling App Version 3
+Specific Version for Statistical User Analysis
 """
 import tkinter as tk
 import os
@@ -26,7 +25,7 @@ class App(tk.Tk):
         self.title('Spectrum Labelling App')
 
         # Specify Output file (will get created if not existent)
-        self.version = '_v4'
+        self.version = '_v3'
         self.file_path = None
         self.app_dir = os.getcwd()
         self.file_name = ""
@@ -73,10 +72,13 @@ class App(tk.Tk):
         tk.Button(master=radioBtnFrame, text="-", command=self.decrease).grid(row=0, column=2, sticky="nsew")
         tk.Button(master=radioBtnFrame, text="+", command=self.increase).grid(row=0, column=3, sticky="nsew")
 
-        # modular structure for adding more categories
+        #background   = tk.StringVar(name="Background", value="0")
+        #distinctness = tk.StringVar(name="Distinctness of Peaks", value="0")
+        #peakWidth    = tk.StringVar(name="Peak Width", value="0")
         impression   = tk.StringVar(name="Spetrum Impression", value="0")
-        categories   = [impression]
-        textLabels = ["--", "-", "+", "++"]
+
+        categories   = [impression]#, background, distinctness, peakWidth]
+        textLabels = ["--", "-", "+", "++"] # emojis: ["\U0001F62D", "\U0001F641", "\U0001F610", "\U0001F642", "\U0001F604"]
         numLabels    = [-2, -1, 1, 2]
         for idx, category in enumerate(categories):
             tk.Label(radioBtnFrame, text=category).grid(row=idx+1,column=0, **padding)
@@ -125,32 +127,34 @@ class App(tk.Tk):
 
 
     def open_file(self):
-        """Recursive method that browses for a random file in a random subfolder."""
-        folders = [folder for folder in os.listdir(".") if os.path.isdir(folder)]
-        if folders:
-            n = len(folders)
-            k = rnd.randint(0, n-1)
-            random_folder = folders[k]
-            os.chdir(os.getcwd() + "\\" + random_folder)
-            self.open_file()
+        """Browses through 100 specifically selected files."""
+        folder = "2021-08-09_alpha_map01_X3808_Y2152_Z4227_mp450mV_ab100nW_SS1um_IT500ms_50x50um"
+        os.chdir(os.getcwd() + "\\" + folder)
+        # search for '.DAT' files
+        files = glob.glob(os.getcwd() + '/*.' + 'DAT')
+        # get progress
+        try:
+            with open(self.file_path) as f:
+                lines = f.readlines()
+            n = len(lines)
+            print("Progress: {0}\%".format(n))
+        except(TypeError):
+            n=0
+        if n <= 100:
+            with open(files[n]) as f:
+                # remove file ending
+                self.file_name = ".".join(os.path.basename(files[n]).split('.')[:-1])
+                # read wavelengths
+                lines = f.readlines()
+                w_raw = [line.split()[0] for line in lines]
+                w = np.asarray(w_raw).astype(float)
+                # read spectrum
+                spectrum_raw = [line.split()[1] for line in lines]
+                spectrum = np.asarray(spectrum_raw).astype(float)
+            self.plot_spectrum(w, spectrum)
         else:
-            # search for '.DAT' files
-            files = glob.glob(os.getcwd() + '/*.' + 'DAT')
-            if files:
-                n = len(files)
-                k = rnd.randint(0, n-1)
-                random_file = files[k]
-                with open(random_file) as f:
-                    # remove file ending
-                    self.file_name = ".".join(os.path.basename(random_file).split('.')[:-1])
-                    # read wavelengths
-                    lines = f.readlines()
-                    w_raw = [line.split()[0] for line in lines]
-                    w = np.asarray(w_raw).astype(float)
-                    # read spectrum
-                    spectrum_raw = [line.split()[1] for line in lines]
-                    spectrum = np.asarray(spectrum_raw).astype(float)
-                self.plot_spectrum(w, spectrum)
+            self.figure.clear()
+            self.canvas.draw()
 
 
     def plot_spectrum(self, wavelengths, amplitudes):
@@ -184,7 +188,7 @@ class App(tk.Tk):
             output_file.write('')
 
 
-    def submit(self):
+    def submit(self): 
         """Save labeled spectrum in textfile."""
         if self.file_path is None:
             self.createOutputFile()

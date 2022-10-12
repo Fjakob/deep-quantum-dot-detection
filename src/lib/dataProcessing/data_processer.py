@@ -4,6 +4,7 @@ import glob
 import pickle
 import numpy as np
 from tqdm import tqdm
+from matplotlib import pyplot as plt
 
 
 class DataProcesser():
@@ -25,8 +26,8 @@ class DataProcesser():
 
         if saving_path is not None:
             self.save(spectra, saving_path, file_name='database')
-
-        return spectra
+        else:
+            return spectra
     
 
     def load_spectra_from_dir(self, dir=None, folder_nmb=1):
@@ -63,7 +64,6 @@ class DataProcesser():
 
         for key in spectra.keys():
             spectra[key] = np.asarray(spectra[key])   
-    
         return spectra
 
     
@@ -77,22 +77,26 @@ class DataProcesser():
             raise FileNotFoundError
 
 
-    def save(self, obj, saving_path, file_name):
-        with open("".join([saving_path, f"\{file_name}.pickle"]), 'wb') as f:
-            pickle.dump(obj, f)
-            print(f"Saved data as {file_name}.pickle")
-
-
-    def preprocess(self, database, w_range, saving_path=None, normalize=True,
+    def create_unsupervised_data(self, w_range, database=None, loading_path=None, saving_path=None, 
+                    normalize=True, augment=False, space_shifts=2, mirroring=False,
                     noise_filtering=True, noise_bound=50, background_filtering=False, background_bound=60):
         """  
         1) Unify all spectra to same wavelength scope
         2) Filter out noise
         3) Filter out background
         4) normalize
-        5) return as np.ndarray
+        5) augment
+        6) return as np.ndarray
         dataset: python.dict -> np.ndarray
         """
+
+        if database is None:
+            if loading_path is None:
+                database = self.load_spectra_from_database()
+            else:
+                database = self.load_spectra_from_file(loading_path)
+
+        file_name = f'data_w{w_range}_unlabeled'
         X = []
         count = 0
         for spectrum in database[f"{w_range}"]:
@@ -111,13 +115,90 @@ class DataProcesser():
 
         if normalize:
             X = X / np.max(np.abs(X), axis=1)[:,np.newaxis]
+            file_name += '_normalized'
+
+        if augment:
+            X = self.augment(X, space_shifts=space_shifts, mirroring=mirroring)
+            file_name += '_augmented'
 
         if saving_path is not None:
-            self.save(X, saving_path, 'data_unlabeled_normalized')
-        return X
+            self.save(X, saving_path, file_name)
+            os.system(f'echo {file_name}.pickle >> {saving_path}//.gitignore')
+        else:
+            return X       
 
 
-    def augment(self, X, Y=None, space_shifts=3, mirroring=True, saving_path=None):
+    def create_regression_data(self, w_range, txt_dir, return_peak_count=False,
+                                show_statistics=True, saving_path=None,
+                                augment=False, space_shifts=5):
+
+        ################## READOUT: #####################
+        userSet, spectra_dict = dict(), dict()
+        label_dir = txt_dir + f"\\w{w_range}"
+        for file in os.listdir(label_dir):
+            labelDict = dict()
+            with open(os.path.join(label_dir, file)) as f:
+                user = file.split("_")[1]
+                lines = f.readlines()
+                for line in lines:
+                    line = line.split()
+                    labels = np.asarray(line[1:3]).astype(float)
+                    if labels[1] == -2 or labels[1] == -1:
+                        labels[1] += 2
+                    elif labels[1] == 1 or labels[1] == 2:
+                        labels[1] += 1
+                    file_name = line[-1].split("\\")[1]
+                    path = f"{self.db_path}\\{line[-1]}.dat"
+                    with open(path) as f:
+                        lines = f.readlines()
+                        spectrum_raw = [line.split()[1] for line in lines]
+                        spectrum = np.asarray(spectrum_raw).astype(float)
+                        labelDict[file_name] = labels
+                        if file_name not in spectra_dict:
+                            spectra_dict[file_name] = spectrum
+            userSet[user] = labelDict
+
+        ################## EVALUATION: #####################
+        X, Y, P = [], [], []
+        for file_name in spectra_dict:
+            x, labels, peak_counts = spectra_dict[file_name], [], []
+            for user, user_labels in userSet.items():
+                if file_name in user_labels.keys():
+                    peak_count, label = user_labels[file_name] 
+                    labels.append(label)
+                    peak_counts.append(peak_count)
+            y = np.mean(labels) / 3
+            peaks = round(np.mean(peak_counts))
+            X.append(x), Y.append(y), P.append(peaks)
+        X, Y = np.asarray(X), np.asarray(Y)
+        file_name = f'data_w{w_range}_labeled'
+
+        if augment:
+            X, Y = self.augment(X, Y, space_shifts=space_shifts)
+            file_name += '_augmented'
+        
+        print(f"Created {Y.shape[0]} regression data points.")
+
+        if show_statistics:
+            plt.hist(Y, align='mid', bins=50)
+            plt.title('Distribution of labels')
+            plt.show()
+        
+        if saving_path is not None:
+            if not return_peak_count:
+                self.save((X,Y), saving_path, file_name)
+            else:
+                file_name += '_with_peaks'
+                self.save((X,Y,P), saving_path, file_name )
+            os.system(f'echo {file_name}.pickle >> {saving_path}//.gitignore')
+        else:
+            if not return_peak_count:
+                return X, Y
+            else:
+                return X, Y, P
+
+    
+    def augment(self, X, Y=None, space_shifts=2, mirroring=True, saving_path=None):
 
         space_shifts+=1
         if space_shifts > self.spectrum_size:
@@ -156,22 +237,19 @@ class DataProcesser():
                         Y_augmented.append(y)
             if saving_path is not None:
                 self.save(X, saving_path, 'data_labeled_augmented')
-            return np.asarray(X_augmented), np.asarray(Y_augmented)        
+            return np.asarray(X_augmented), np.asarray(Y_augmented) 
 
 
-    def print_data_statistic():
-        """ 
-        Plot sample data
-        Plot mean spectrum
-        Yield mean, std, etc
-        """
-        pass
+    def save(self, obj, saving_path, file_name):
+        with open("".join([saving_path, f"\{file_name}.pickle"]), 'wb') as f:
+            pickle.dump(obj, f)
+            print(f"Saved data as {file_name}.pickle")
+
 
 
 class DataLengthError(Exception):
     """ An exception that is raised when a spectrum has not the specified number of samples. """
     pass
-
 
 def merge_dictionary_contents(dict1, dict2):
     merged_dict = dict1
@@ -181,3 +259,4 @@ def merge_dictionary_contents(dict1, dict2):
         else:
             merged_dict[key] = value
     return merged_dict
+            

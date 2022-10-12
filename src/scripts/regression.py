@@ -1,4 +1,4 @@
-from __config__ import *
+from config.__config__ import *
 
 from tqdm import tqdm
 from scipy.signal import peak_widths

@@ -2,10 +2,10 @@ import numpy as np
 import scipy.sparse.linalg as linalg
 import matplotlib.pyplot as plt
 
-from src.lib.featureExtraction.feature_extracter import FeatureExtracter
+from src.lib.featureExtraction.latent_extracter import LatentExtracter
 
 
-class PCA(FeatureExtracter):
+class PCA(LatentExtracter):
     """ Principal Component Analysis class for dimensionality reduction. """
     def __init__(self, latent_dim=12):
         self.latent_dim = latent_dim

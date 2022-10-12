@@ -1,6 +1,6 @@
 from unittest import TestCase
 from os.path import isfile
-from src.lib.dataHandling.data_processing import DataProcesser
+from src.lib.dataProcessing.data_processer import DataProcesser
 
 
 class TestDataLoader(TestCase):

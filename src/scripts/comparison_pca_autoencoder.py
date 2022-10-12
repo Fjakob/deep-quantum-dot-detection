@@ -1,4 +1,4 @@
-from __config__ import *
+from config.__config__ import *
 
 from os.path import isfile
 from src.lib.featureExtraction.autoencoder import Autoencoder
@@ -12,22 +12,13 @@ def load_autoencoder(latent_dim=12):
 
     if not isfile(model_path):
         print(f"No autoencoder model found for latent dimension {latent_dim}.\n")
-        print("Availabel models:\n" + str(os.listdir("models/autoencoders")))
+        print("Availabel models:\n" + str([os.path.basename(element) for element in glob.glob("models\\autoencoders\\*.pth")]))
         exit()
 
     autoencoder = Autoencoder(latent_dim)
     autoencoder.load_model(model_path, model_summary=False)
 
     return autoencoder
-
-
-def load_dataset(PATH):
-    # load the dataset
-    with open(PATH, 'rb') as f:
-        dataset = pickle.load(f)
-    X = np.asarray([x for _, x, _ in dataset])
-    Y = np.asarray([y for _, _, y in dataset])
-    return X, Y
 
 
 def plot_comparison(X, X_recon, X_recon_pca, plots=20):
@@ -74,30 +65,29 @@ def validate(X_pca, X, latent_dims):
         test_loss.append((error_autoencoder, error_pca))
         
 
-
 def main():
 
-    dim_ae  = 24
+    dim_ae  = 53
     dim_pca = 24
 
-    #autoencoder = load_autoencoder(latent_dim = dim_ae)
-    #pca = PCA(latent_dim = dim_pca)
+    autoencoder = load_autoencoder(latent_dim = dim_ae)
+    pca = PCA(latent_dim = dim_pca)
 
     # fit PCA to whole dataset
-    with open('dataSets/DataFilteredNormalizedAugmented', 'rb') as f:
+    with open('dataSets/unlabeled/data_w30_unlabeled_normalized_augmented.pickle', 'rb') as f:
         X_train = np.asarray(pickle.load(f))
-    #pca.fit(X_train)
+    pca.fit(X_train)
 
     # load datasets
-    X, _ = load_dataset('dataSets/regressionData')
+    with open('dataSets/labeled/data_w30_labeled.pickle', 'rb') as f:
+        X, _ = pickle.load(f)
     np.random.shuffle(X)
 
-    validate(X_train, X, [4, 8, 12, 16, 20, 24, 32])
+    X_norm, _, X_hat = autoencoder.normalize_and_extract(X)
+    _, _, X_hat_pca = pca.normalize_and_extract(X)
 
-    #X_norm, _, X_hat = autoencoder.normalize_and_extract(X)
-    #_, _, X_hat_pca = pca.normalize_and_extract(X)
 
-    #plot_comparison(X_norm, X_hat, X_hat_pca, plots=5)
+    plot_comparison(X_norm, X_hat, X_hat_pca, plots=15)
 
 
 if __name__ == '__main__':

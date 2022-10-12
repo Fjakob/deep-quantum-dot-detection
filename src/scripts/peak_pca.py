@@ -1,4 +1,4 @@
-from __config__ import *
+from config.__config__ import *
 
 from src.lib.peakDetectors.os_cfar import OS_CFAR
 from src.lib.peakDetectors.threshold_detector import ThresholdDetector

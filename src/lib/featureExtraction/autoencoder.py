@@ -2,12 +2,12 @@ import numpy as np
 from torch import nn, cuda, tensor, load
 from torchsummary import summary
 
-from src.lib.featureExtraction.feature_extracter import FeatureExtracter
+from src.lib.featureExtraction.latent_extracter import LatentExtracter
 from src.lib.neuralNetworks.encoder import ResidualEncoder as Encoder
 from src.lib.neuralNetworks.decoder import DeepDecoder as Decoder
 
 
-class Autoencoder(nn.Module, FeatureExtracter):
+class Autoencoder(nn.Module, LatentExtracter):
     """ Autoencoder for dimensionality reduction. """
     def __init__(self, latent_dim=12):
         if latent_dim <= 0:
