@@ -17,7 +17,7 @@ pipeline_iii:
 pipeline_iv:
     autoencoder:
         latent_dim: 24
-        model_path: models/autoencoders/autoencoder24.pth
+        model_path: models/autoencoders
 
     neural_net: 
         hyperparams:
@@ -29,7 +29,8 @@ pipeline_iv:
 
 
 results:
-    plot_path: 'reports\plots'
+    model_path: 'models\classifiers'
+    plot_path:  'reports\plots'
 
 
     
