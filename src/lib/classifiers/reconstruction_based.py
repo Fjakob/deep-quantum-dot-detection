@@ -14,9 +14,9 @@ class ReconstructionBasedRater():
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         X_norm, _, X_hat = self.reconstructer.normalize_and_extract(X)
         e = np.linalg.norm(X_norm - X_hat, axis=1)
-        e = torch.tensor(e, device=device)
+        e = torch.tensor(e, device=device).float()
         e = torch.unsqueeze(e, dim=1)
-        y = self.network(e)
+        y = self.regressor(e)
         y = torch.squeeze(y)
         y = y.cpu().detach().numpy()
         return y

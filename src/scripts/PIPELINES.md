@@ -55,6 +55,7 @@
  observed: some peaks not well reconstructed => cutoff of relevant features
  expected: bad regression results due to feature cutoff, bad prediction results for uncovered data
 
+
  PIPELINE IV: autoencoder reconstruction based
  
  1) load whole unlabeled database, filter, normalize and augment
@@ -71,11 +72,11 @@
  expected: promising, but highly dependent on autoencoder performance
 
 
-# DEPLOYEMENT:
-# 
-# 1) Know the wavelength range you want to investigate
-# 2) Label around 100 samples of spectra of that wavelength range with 6-7 experts to have good mean labels for regression
-# 3) Perform one of PIPELINE I-IV 
-# 4) Exploit regressor on a given semiconductor sample, label every point on the sample
-# 5) Return coordinates of the point with best ratings
-# 6) Use peak detection algorithm to return peak height and wavelength
+ DEPLOYEMENT:
+ 
+ 1) Know the wavelength range you want to investigate
+ 2) Label around 100 samples of spectra of that wavelength range with 6-7 experts to have good mean labels for egression
+ 3) Perform one of PIPELINE I-IV 
+ 4) Exploit regressor on a given semiconductor sample, label every point on the sample
+ 5) Return coordinates of the point with best ratings
+ 6) Use peak detection algorithm to return peak height and wavelength

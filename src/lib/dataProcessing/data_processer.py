@@ -130,7 +130,7 @@ class DataProcesser():
 
     def create_regression_data(self, w_range, txt_dir, return_peak_count=False,
                                 show_statistics=True, saving_path=None,
-                                augment=False, space_shifts=5):
+                                augment=False, space_shifts=5, mirroring=True):
 
         ################## READOUT: #####################
         userSet, spectra_dict = dict(), dict()
@@ -174,7 +174,7 @@ class DataProcesser():
         file_name = f'data_w{w_range}_labeled'
 
         if augment:
-            X, Y = self.augment(X, Y, space_shifts=space_shifts)
+            X, Y = self.augment(X, Y, space_shifts=space_shifts, mirroring=mirroring)
             file_name += '_augmented'
         
         print(f"Created {Y.shape[0]} regression data points.")
@@ -244,7 +244,21 @@ class DataProcesser():
         with open("".join([saving_path, f"\{file_name}.pickle"]), 'wb') as f:
             pickle.dump(obj, f)
             print(f"Saved data as {file_name}.pickle")
+    
 
+    def create_artificial_spectra(self, n_samples, seed=42, noise_var=2.5, max_peak_height=100):
+        """ Creates n artificial spectra with one peak and increasing SNR. """
+        np.random.seed(seed)
+        min_peak_height=10
+        X = []
+        for idx in range(n_samples):
+            peak_height = min_peak_height + (idx+1)/n_samples * (max_peak_height-min_peak_height)
+            spectrum = np.random.normal(0.25, noise_var, size=self.spectrum_size)
+            spectrum[int(self.spectrum_size/2)] = peak_height
+            spectrum[int(self.spectrum_size/2)-1] = peak_height/2
+            spectrum[int(self.spectrum_size/2)+1] = peak_height/2
+            X.append(spectrum)
+        return np.asarray(X)
 
 
 class DataLengthError(Exception):

@@ -1,6 +1,5 @@
-from config.__config__ import *
+from config.imports import *
 
-from os.path import isfile
 from src.lib.featureExtraction.autoencoder import Autoencoder
 from src.lib.featureExtraction.pca import PCA
 
@@ -10,7 +9,7 @@ def load_autoencoder(latent_dim=12):
 
     model_path = f"models/autoencoders/autoencoder{latent_dim}.pth"
 
-    if not isfile(model_path):
+    if not os.path.isfile(model_path):
         print(f"No autoencoder model found for latent dimension {latent_dim}.\n")
         print("Availabel models:\n" + str([os.path.basename(element) for element in glob.glob("models\\autoencoders\\*.pth")]))
         exit()
@@ -67,10 +66,10 @@ def validate(X_pca, X, latent_dims):
 
 def main():
 
-    dim_ae  = 53
-    dim_pca = 24
+    dim_ae  = 128
+    dim_pca = 512
 
-    autoencoder = load_autoencoder(latent_dim = dim_ae)
+    #autoencoder = load_autoencoder(latent_dim = dim_ae)
     pca = PCA(latent_dim = dim_pca)
 
     # fit PCA to whole dataset
@@ -79,15 +78,17 @@ def main():
     pca.fit(X_train)
 
     # load datasets
-    with open('dataSets/labeled/data_w30_labeled.pickle', 'rb') as f:
-        X, _ = pickle.load(f)
-    np.random.shuffle(X)
+    #with open('dataSets/labeled/data_w30_labeled.pickle', 'rb') as f:
+    #    X, _ = pickle.load(f)
+    #np.random.shuffle(X)
 
-    X_norm, _, X_hat = autoencoder.normalize_and_extract(X)
-    _, _, X_hat_pca = pca.normalize_and_extract(X)
+    #X_norm, _, X_hat = autoencoder.normalize_and_extract(X)
+    #_, _, X_hat_pca = pca.normalize_and_extract(X)
 
+    #plot_comparison(X_norm, X_hat, X_hat_pca, plots=15)
 
-    plot_comparison(X_norm, X_hat, X_hat_pca, plots=15)
+    with open(f'models/pca/pca{dim_pca}.pickle', 'wb') as file:
+        pickle.dump((pca.V, pca.mean), file)
 
 
 if __name__ == '__main__':

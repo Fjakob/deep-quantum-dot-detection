@@ -29,7 +29,7 @@ class Autoencoder(nn.Module, LatentExtracter):
         return decoded
 
 
-    def load_model(self, model_path, model_summary=True):
+    def load_model(self, model_path, model_summary=False):
         """ Loads neural network weights and biases from saved pretrained model. """
         try:
             self.load_state_dict(load(model_path))

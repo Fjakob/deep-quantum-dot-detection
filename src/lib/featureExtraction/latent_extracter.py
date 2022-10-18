@@ -8,9 +8,15 @@ class LatentExtracter():
     def extract_latent(self, X_normalized, return_reconstruction=False):
         raise NotImplementedError
 
+    def load_model(self, model_path, model_summary=False):
+        """ Loads somewhat presaved model parameters into instance """
+        raise NotImplementedError
+
 
     def normalize_and_extract(self, X):
         """ Scales raw numpy spectrum to value range [0,1] before reducing. """
+        if len(X.shape) == 1:
+            X = np.expand_dims(X, axis=0)
         X_scaled = X / np.max(np.abs(X), axis=1)[:,np.newaxis]
         Z, X_recon = self.extract_latent(X_scaled, return_reconstruction=True)
         return X_scaled, Z, X_recon
