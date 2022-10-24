@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class LatentExtracter():
-    """ Abstract class for dimension reduction. """
+    """ Abstract class to be inherited by Autoencoder and PCA class. """
 
     def extract_latent(self, X_normalized, return_reconstruction=False):
         raise NotImplementedError

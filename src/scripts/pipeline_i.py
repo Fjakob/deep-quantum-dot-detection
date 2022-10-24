@@ -7,15 +7,13 @@ warnings.filterwarnings("ignore")
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import shuffle
-from sklearn.gaussian_process import GaussianProcessRegressor, kernels
-from sklearn.neural_network import MLPRegressor as neural_net
 
 from src.lib.dataProcessing.data_processer import DataProcesser
 from src.lib.peakDetectors.os_cfar import OS_CFAR
 from src.lib.featureExtraction.autoencoder import Autoencoder
 from src.lib.featureExtraction.pca import PCA
-from lib.featureExtraction.feature_extractor import FeatureExtracter
-from lib.neuralNetworks.dense_networks import VanillaNeuralNetwork as NeuralNetwork
+from src.lib.featureExtraction.feature_extractor import FeatureExtracter
+from src.lib.neuralNetworks.dense_networks import VanillaNeuralNetwork as NeuralNetwork
 from src.lib.classifiers.intuitive_feature_based import PeakFeatureBasedRater
 
 
@@ -113,40 +111,29 @@ def pipeline(config_path):
     model_save_path   = config['results']['model_path']
 
     ### Pipeline stages
+    # 0) instanciation
+    reconstructor = load_reconstructor(reconstr_type, reconstr_setting)
+    peak_detector = OS_CFAR(N=190, T=6.9, N_protect=20)
+    feature_extracter = FeatureExtracter(peak_detector, reconstructor, seed)
+    neural_net = NeuralNetwork(regressor_setting)
+
     # 1) data processing stage
     X, Y = load_dataset(dataset_path, data_settings)
-
-    peak_detector = OS_CFAR(N=190, T=6.9, N_protect=20)
-    reconstructor = load_reconstructor(reconstr_type, reconstr_setting)
-    feature_extracter = FeatureExtracter(peak_detector, reconstructor, seed)
-
-    V = feature_extracter.extract_from_dataset(X)
-    plt.plot(V, Y, '*')
-    plt.show()
     
-    neural_net = NeuralNetwork(regressor_setting)
-    neural_net.fit(V, Y)
-
-
-    raise
-
-    #gpr = GaussianProcessRegressor(kernel=kernels.Matern(nu=1/2))
-    #regressor = neural_net(hidden_layer_sizes=100, activation='logistic', alpha=0.1)
-    feature_extracter.feature_backward_elimination(regressor, (X[0:150],Y[0:150]))
-
-    raise
-    V, scaler = feature_transformation(X, feature_extracter, scaling=True)
-    dataset = train_test_split(V, Y, test_size=0.05)
-
-    #gpr = GaussianProcessRegressor(kernel=kernels.Matern(nu=1/2))
-    #feature_extracter.feature_selection(gpr, (X[0:150],Y[0:150]))
+    feature_extracter.set_features(['reconstruction_error', 'n_peak', 'min_to_max'])
+    V = feature_extracter.extract_from_dataset(X)
 
     # 2) training stage
-    gp_regressor = train_gaussian_process(dataset, gp_kernel)
+    V_train, V_test, Y_train, Y_test = train_test_split(V, Y, test_size=0.2, random_state=seed)
+    neural_net.fit(V_train, Y_train, print_training_curve=True)
+
+    r2_test = neural_net.score(V_test, Y_test)
+    print(f"Test R2 score: {r2_test}")
 
     # 3) evaluation
-    save_model(model_save_path, feature_extracter, scaler, gp_regressor)
-    visualize_deploy(X, Y, feature_extracter, scaler, gp_regressor)
+    #save_model(model_save_path, feature_extracter, scaler, gp_regressor)
+    #visualize_deploy(X, Y, feature_extracter, scaler, gp_regressor)
+
 
 
 if __name__ == "__main__":
@@ -156,4 +143,3 @@ if __name__ == "__main__":
     args = args_parser.parse_args()
 
     pipeline(config_path=args.config)
-

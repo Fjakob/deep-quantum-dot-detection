@@ -1,10 +1,13 @@
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+
 from scipy.signal import peak_widths
 from scipy.stats import entropy
 from sklearn.model_selection import KFold
-import matplotlib.pyplot as plt
-from tqdm import tqdm
+
+from src.lib.featureExtraction.norms import *
+
 
  
 class FeatureExtracter():
@@ -15,14 +18,16 @@ class FeatureExtracter():
         self.detector = peak_detector
         self.reconstructor = reconstructor
         self.whiteNoise = np.random.normal(0.25, 2.52, size=1024)
-        self.features = ["reconstruction_error", "w_max"]
+        self.features = ["reconstruction_error"]
 
     
+
     def set_features(self, feature_list):
         """ ... """
         self.features = feature_list
 
     
+
     def extract_reconstruction_error(self, X):
         """ ... """
         if X.shape == 1:
@@ -32,6 +37,7 @@ class FeatureExtracter():
         reconstruction_errors = window_loss(X_hat, X_norm)
 
         return np.expand_dims(reconstruction_errors, axis=1)
+
 
 
     def extract_peak_measures(self, X):
@@ -85,6 +91,7 @@ class FeatureExtracter():
         return np.asarray(features_X)
 
     
+
     def extract_noise_correlations(self, X):
         """ Calculates entropy with white noise"""
         
@@ -92,9 +99,10 @@ class FeatureExtracter():
         for x in X:
             noise_normalized  = 0.5*(self.whiteNoise / np.max(np.abs(self.whiteNoise))) + 1
             signal_normalized = 0.5*(x / np.max(np.abs(x))) + 1
-            entropies.append(noise_normalized, signal_normalized)
+            entropies.append(entropy(noise_normalized, signal_normalized))
 
         return np.expand_dims(entropies, axis=1)
+
 
 
     def extract_from_dataset(self, X):
@@ -121,8 +129,9 @@ class FeatureExtracter():
         return np.hstack(tuple(features))
 
 
+
     def evaluate_features(self, eval_dataset, regressor, folds):
-        """ ... """
+        """ Mean R2-score of cross-validation on given data set with given regressor. """
 
         X, Y = eval_dataset
         V = self.extract_from_dataset(X)
@@ -130,101 +139,112 @@ class FeatureExtracter():
         k_fold = KFold(n_splits=folds)
         r2_scores = list()
 
-        for train_index, test_index in k_fold.split(V):
+        print("Computing R2-scores...")
+        for train_index, test_index in tqdm(k_fold.split(V)):
             V_train, V_test = V[train_index], V[test_index]
             Y_train, Y_test = Y[train_index], Y[test_index]
 
-            regressor.fit(V_train, Y_train)
+            regressor.fit(V_train, Y_train, verbose=False)
             r2_scores.append(regressor.score(V_test, Y_test))
         
         return np.mean(r2_scores)
 
+
     
-    def feature_forward_selection(self, regressor, eval_dataset, folds=5):
-        pass
+    def feature_forward_selection(self, eval_dataset, regressor, folds=5):
+        """ 
+        Selects most relevant features based on forward selection algorithm: 
+
+        1) Subsequentially add each feature to the feature set, compute accuracy metric
+        2) Add feature with highest resulting accuary permanently to the set
+
+        Regressor must provide a fit() and score() function
+        As accuracy, mean R2-score of cross-validation on given data set with given regressor is used.
+        """
+
+        self.features = []
+
+        features = ["reconstruction_error", 
+                    "n_peak",
+                    "d_min",
+                    "w_max",
+                    "min_to_max",
+                    "x_max",
+                    "noise_correlation"]
+
+        iter = 1
+        while len(features) > 1:
+
+            print(f"-------------- ITERATION {iter} -------------- ")
+            print(f"Feature list: \n{self.features}\n")
+            significance_dict = dict()
+
+            for feature in features.copy():
+                print(f"Adding {feature}... ")
+                self.features.append(feature)
+
+                r2_performance = self.evaluate_features(eval_dataset, regressor, folds)
+                print(f"Retrieved R2: {r2_performance}\n")
+                significance_dict[feature] = r2_performance
+
+                self.features.remove(feature)
+
+            most_significant_feature = max(significance_dict, key=significance_dict.get)
+
+            self.features.append(most_significant_feature)
+            features.remove(most_significant_feature)
+
+            iter += 1
 
 
-    def feature_backward_elimination(self, regressor, eval_dataset, folds=5):
-        """ Selects most relevant features based on a training dataset. """
 
-        X, Y = eval_dataset
+    def feature_backward_elimination(self, eval_dataset, regressor, folds=5):
+        """ 
+        Selects most relevant features based on backward elimination algorithm: 
 
-        k_fold = KFold(n_splits=folds)
+        1) Subsequentially remove each feature from the set, compute accuracy metric
+        2) Remove feature with highest remaining accuary permanently from the set
 
+        As accuracy, mean R2-score of cross-validation on given data set with given regressor is used.
+        """
 
-        print(f"Reference initial R2: {np.mean(R2)}\n")
-        plt.plot(V_train, Y_train, '*')
+        self.features = ["reconstruction_error", 
+                         "n_peak",
+                         "d_min",
+                         "w_max",
+                         "min_to_max",
+                         "x_max",
+                         "noise_correlation"]
 
-        x = np.expand_dims(np.linspace(0,3), axis=1)
-        y = reg.predict(x)
-        plt.plot(x,y)
-        plt.show()
+        r2_performance = self.evaluate_features(eval_dataset, regressor, folds)
+        print(f"Reference initial R2: {r2_performance}\n")
 
         iter = 1
         while len(self.features) > 1:
+
             print(f"-------------- ITERATION {iter} -------------- ")
+            print(f"Feature list: \n{self.features}\n")
             redundancy_dict = dict()
             features = self.features.copy()
-            for feature in features:
-                print(f"Removing {feature}")
-                self.features.remove(feature)
-                V = self.extract_from_dataset(X)
-                R2 = []
-                for train_index, test_index in k_fold.split(V):
-                    V_train, V_test = V[train_index], V[test_index]
-                    Y_train, Y_test = Y[train_index], Y[test_index]
 
-                    reg = regressor.fit(V_train, Y_train)
-                    fit = reg.score(V_test, Y_test)
-                    R2.append(fit)
-                print(f"R2 after removing: {np.mean(R2)}\n")
-                redundancy_dict[feature] = np.mean(R2)
+            for feature in features:
+                print(f"Removing {feature}... ")
+                self.features.remove(feature)
+
+                r2_performance = self.evaluate_features(eval_dataset, regressor, folds)
+                redundancy_dict[feature] = r2_performance
+                print(f"Remaining R2: {r2_performance}\n")
+
                 self.features.append(feature)
+
             redundant_feature = max(redundancy_dict, key=redundancy_dict.get)
             self.features.remove(redundant_feature)
+
             print(f"Removed feature: {redundant_feature}\n")
             iter += 1
+
 
     
     def extract_latent_features(self, X):
         _, Z, _ = self.reconstructor.normalize_and_extract(X)
         return Z
-
-
-def signal_window(x, idx, shift):
-    idx_left = idx - shift
-    idx_right = idx + shift + 1
-
-    # take signal window
-    if idx_left < 0:
-        padding_left = np.zeros( abs(idx_left) )
-        x_window = np.concatenate( (padding_left, x[0:idx_right]) )
-    elif idx_right > len(x):
-        padding_right = np.zeros( idx_right - len(x) )
-        x_window = np.concatenate( (x[idx_left:len(x)], padding_right) )
-    else:
-        x_window = x[idx_left:idx_right]
-
-    return x_window
-
-
-def window_loss(X1, X2, window_size=9):
-    if len(X1.shape) == 1:
-        X1 = np.expand_dims(X1, axis=0)
-    if len(X2.shape) == 1:
-        X2 = np.expand_dims(X2, axis=0)
-    n = X1.shape[0]
-    shift = int((window_size-1)/2)
-
-    loss = []
-    idx=0
-    for idx in range(n):
-        x1 = X1[idx]
-        x2 = X2[idx]
-        diff = x1-x2
-        e = []
-        for idx in range(len(diff)):
-            window = signal_window(diff, idx, shift)
-            e.append(np.mean(window))
-        loss.append(np.linalg.norm(e))
-    return np.asarray(loss)

@@ -1,6 +1,7 @@
 import numpy as np
 from itertools import groupby
 from operator import itemgetter
+from tqdm import tqdm
 
 class PeakDetector():
     """ Abstract peak detector class. """
@@ -38,7 +39,7 @@ class PeakDetector():
     def isolate_peak_neighbourhoods(self, X, neighbourhood_width):
         """ Returns neighbourhoods of every detected peak in a data set. """
         peak_snippets = []
-        for x in X:
+        for x in tqdm(X):
             peak_indices, _, _ = self.detect(x)
             max_idx = len(x)
 

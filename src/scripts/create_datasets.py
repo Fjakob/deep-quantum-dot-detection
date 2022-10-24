@@ -19,14 +19,14 @@ def main():
     #loader.create_unsupervised_data(w_range=w_range, background_filtering=True, augment=True, space_shifts=2,
      #                               loading_path='datasets/raw/database.pickle', saving_path='datasets/unlabeled')
 
-    loader.create_unsupervised_data(w_range=30, normalize=False, augment=False,
-                                    loading_path='datasets/raw/database.pickle', saving_path='datasets/unlabeled')
+    #loader.create_unsupervised_data(w_range=30, normalize=False, augment=False,
+     #                               loading_path='datasets/raw/database.pickle', saving_path='datasets/unlabeled')
 
     ###  2) Create Data for Supervised Learning of Classifier
-    #txt_dir = 'datasets\\labeled\\labels_txt'
-    #loader.create_regression_data(w_range, txt_dir, return_peak_count=False,
-     #                             augment=True, space_shifts=2, mirroring=False,
-      #                                  saving_path='datasets/labeled')
+    txt_dir = 'datasets\\labeled\\labels_txt'
+    loader.create_regression_data(w_range, txt_dir, return_peak_count=True,
+                                  augment=False, space_shifts=2, mirroring=False,
+                                        saving_path='datasets/labeled')
     
 
 if __name__ == "__main__":

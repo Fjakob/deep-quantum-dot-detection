@@ -52,9 +52,6 @@ def window_loss(x1, x2, window_size=5):
     return np.linalg.norm(e)
 
 
-
-        
-        
 if __name__ == "__main__":
 
     target = np.asarray([0,0,0, 0, 1, 0, 0, 0, 0, 2, 10, 1, 0, 0, 0, 0])

@@ -9,10 +9,9 @@ def extract_principal_peaks():
     """ PCA analysis of peak snippets. """
 
     # load the dataset
-    with open('dataSets/classificationData', 'rb') as f:
-        dataSet = pickle.load(f)
-    X = [x for _, x, _ in dataSet[:100]]
-    Y = [y[0] for _, _, y in dataSet[:100]]
+    with open('dataSets/labeled/data_w30_labeled_with_peaks.pickle', 'rb') as f:
+        dataset = pickle.load(f)
+    X, _, P = dataset
 
     # extract every peak shape from the dataset
     detector = OS_CFAR(N=190, T=6.9, N_protect=20)
@@ -24,7 +23,7 @@ def extract_principal_peaks():
     X_train = np.asarray(isolated_peaks)
     pca = PCA(latent_dim = 10)
     pca.fit(X_train)
-    pca.plot_reconstructions(X_train, nbr_plots=15)
+    pca.plot_reconstructions(X_train, nbr_plots=25)
 
 
 if __name__ == "__main__":

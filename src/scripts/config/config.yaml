@@ -38,11 +38,11 @@ regressor:
         # Select kernel: Matern, Rational Quadratic, Gaussian, Linear
         kernel: Matern 
     neural_net:
-        hidden_neurons: 200
+        hidden_neurons: 100
         dropout:        0.0
         batch_size:     16
         learning_rate:  0.01
-        epochs:         200
+        epochs:         100
 
 
 results:
