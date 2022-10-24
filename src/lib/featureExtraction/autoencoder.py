@@ -2,7 +2,7 @@ import numpy as np
 from torch import nn, cuda, tensor, load
 from torchsummary import summary
 
-from src.lib.featureExtraction.latent_extracter import LatentExtracter
+from src.lib.featureExtraction.latent_extractor import LatentExtracter
 from src.lib.neuralNetworks.encoder import ResidualEncoder as Encoder
 from src.lib.neuralNetworks.decoder import DeepDecoder as Decoder
 
@@ -48,7 +48,7 @@ class Autoencoder(nn.Module, LatentExtracter):
         Z = self.encoder(X)
 
         if return_reconstruction:
-            X_recon = self.decoder(Z)
+            X_recon = self.forward(X)
             X_recon = np.squeeze(X_recon.cpu().detach().numpy())
             Z = Z.cpu().detach().numpy()
             return Z, X_recon

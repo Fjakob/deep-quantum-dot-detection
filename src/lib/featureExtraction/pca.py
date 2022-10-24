@@ -3,7 +3,7 @@ import pickle
 import scipy.sparse.linalg as linalg
 import matplotlib.pyplot as plt
 
-from src.lib.featureExtraction.latent_extracter import LatentExtracter
+from src.lib.featureExtraction.latent_extractor import LatentExtracter
 
 
 class PCA(LatentExtracter):

@@ -6,13 +6,13 @@ def main():
         X = pickle.load(data)
 
 
-    with open('models/classifiers/intuitive_feature_based_rater.pickle', 'rb') as model:
+    with open('models/classifiers/reconstruction_based_rater.pickle', 'rb') as model:
         rater = pickle.load(model)
 
     for x in X:
         y = rater.rate(x)
         plt.plot(x)
-        plt.title('Predicted label: {:.2f}'.format(y[0]))
+        plt.title('Predicted label: {:.2f}'.format(y))
         plt.show()
 
 

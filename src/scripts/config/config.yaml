@@ -6,57 +6,50 @@ base:
 data:
     path_data: 'datasets\labeled\data_w30_labeled.pickle'
     path_data_augmented: 'datasets\labeled\data_w30_labeled_augmented.pickle'
-
-    artificial_data_setting:
+    data_setting:
         add_artificial: True
-        artificial_samples: 30
-        max_peak_height: 17
+        artificial_samples: 20
+        max_artificial_peak_height: 15
 
 
-
-pipeline_i:
-    gaussian_process:
-        kernel: Matern
-        #kernel: Gaussian
-        #kernel: Rational_quadratic
-        #kernel: Linear
-
-
-
-pipeline_ii:
-
-
-
-pipeline_iii:
-
-
-
-pipeline_iv:
-    reconstructor: autoencoder
-    #reconstructor: pca
-
+reconstructor: 
+    # select type betweeen autoencoder or pca
+    type: autoencoder
     autoencoder:
         latent_dim: 32
         model_path: models/autoencoders
-
     pca:
         latent_dim: 512
         model_path: models/pca
 
-    neural_net: 
-        hyperparams:
-            hidden_neurons: 100
-            dropout:        0.0
-            batch_size:     16
-            learning_rate:  0.01
-            epochs:         200
 
+detector:
+    type: OS_CFAR
+    os_cfar:
+        N: 190
+        T: 6.9
+        N_protect: 10
+
+
+regressor:
+    # select type betweeen gaussian process or neural network
+    type: neural_net
+    gaussian_process:
+        # Select kernel: Matern, Rational Quadratic, Gaussian, Linear
+        kernel: Matern 
+    neural_net:
+        hidden_neurons: 200
+        dropout:        0.0
+        batch_size:     16
+        learning_rate:  0.01
+        epochs:         200
 
 
 results:
     model_path: 'models\classifiers'
-    plot_path:  'reports\plots'
-    figure_format: 'png'
+    plot_settings:  
+        plot_path: 'reports\plots'
+        plot_format: 'png'
 
 
     

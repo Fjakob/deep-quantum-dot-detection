@@ -5,18 +5,59 @@ import torch
 from torch import nn, tensor, optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.metrics import r2_score
+from tqdm import tqdm
 
 from src.lib.featureExtraction.autoencoder import Autoencoder
 from src.lib.featureExtraction.pca import PCA
 from src.lib.classifiers.reconstruction_based import ReconstructionBasedRater
 from src.lib.dataProcessing.data_processer import DataProcesser
+from src.lib.peakDetectors.os_cfar import OS_CFAR
+
+
+def signal_window(x, idx, shift):
+    idx_left = idx - shift
+    idx_right = idx + shift + 1
+
+    # take signal window
+    if idx_left < 0:
+        padding_left = np.zeros( abs(idx_left) )
+        x_window = np.concatenate( (padding_left, x[0:idx_right]) )
+    elif idx_right > len(x):
+        padding_right = np.zeros( idx_right - len(x) )
+        x_window = np.concatenate( (x[idx_left:len(x)], padding_right) )
+    else:
+        x_window = x[idx_left:idx_right]
+
+    return x_window
+
+
+def window_loss(X1, X2, window_size=9):
+    if len(X1.shape) == 1:
+        X1 = np.expand_dims(X1, axis=0)
+    if len(X2.shape) == 1:
+        X2 = np.expand_dims(X2, axis=0)
+    n = X1.shape[0]
+    shift = int((window_size-1)/2)
+
+    loss = []
+    idx=0
+    for idx in range(n):
+        x1 = X1[idx]
+        x2 = X2[idx]
+        diff = x1-x2
+        e = []
+        for idx in range(len(diff)):
+            window = signal_window(diff, idx, shift)
+            e.append(np.mean(window))
+        loss.append(np.linalg.norm(e))
+    return np.asarray(loss)
 
 
 def load_dataset(path, artif_data_setup):
     """ Loads dataset from saved file. """
     add_artificial = artif_data_setup['add_artificial']
     artificial_samples = artif_data_setup['artificial_samples']
-    max_peak_height = artif_data_setup['max_peak_height']
+    max_peak_height = artif_data_setup['max_artificial_peak_height']
 
     with open(path, 'rb') as file:
         X, Y = pickle.load(file)
@@ -32,8 +73,11 @@ def load_dataset(path, artif_data_setup):
     return X, Y
 
 
-def load_reconstructor(reconstructor, model_dir, latent_dim):
+def load_reconstructor(reconstructor, reconstr_settings):
     """ Loads saved model into a new autoencoder instance. """
+    model_dir  = reconstr_settings['model_path']
+    latent_dim = reconstr_settings['latent_dim']
+
     file_ending = 'pth' if reconstructor == 'autoencoder' else 'pickle'
     model_path  = f"{model_dir}/{reconstructor}{latent_dim}.{file_ending}"
     model = Autoencoder(latent_dim) if reconstructor == 'autoencoder' else PCA(latent_dim)
@@ -44,8 +88,17 @@ def load_reconstructor(reconstructor, model_dir, latent_dim):
 def compute_reconstruction_errors(spectra, dim_reducer):
     """ Compute reconstruction error of spectra """
     X_norm, _, X_hat = dim_reducer.normalize_and_extract(spectra)
-    reconstruction_errors = np.linalg.norm(X_norm - X_hat, axis=1)
+    #reconstruction_errors = np.linalg.norm(X_norm - X_hat, axis=1)
+    #reconstruction_errors = shape_loss(X_hat, X_norm)
+    reconstruction_errors = window_loss(X_hat, X_norm)
     return reconstruction_errors
+
+def detect_peaks(spectra, peak_detector):
+    N = []
+    for spectrum in spectra:
+        _, n_peaks, _ = peak_detector.detect(spectrum)
+        N.append(n_peaks)
+    return np.asarray(N)
 
 
 def visualize_data(X_e, Y, artif_data_setup):
@@ -61,8 +114,21 @@ def visualize_data(X_e, Y, artif_data_setup):
     plt.legend()
     plt.show()
 
+def visualize_data_3d(X_e, N, Y, artif_data_setup):
+    add_artificial = artif_data_setup['add_artificial']
+    artificial_samples = artif_data_setup['artificial_samples']
+    n_data = X_e.shape[0] - artificial_samples
+ 
+    if add_artificial:
+        plt.scatter(X_e[:n_data], N[:n_data], Y[:n_data], label='Nom. data')
+        plt.scatter(X_e[n_data:], N[n_data:], Y[n_data:], label='Artificial data')
+    else:
+        plt.scatter(X_e[:], N[:], Y[:], label='Data')
+    plt.legend()
+    plt.show()
 
-def train_neural_network(errors, labels, hyperparams):
+
+def train_neural_network(errors, peaks, labels, hyperparams):
     """ Trains a one-layer neural network. """
 
     ### Load hyperparameters
@@ -76,13 +142,14 @@ def train_neural_network(errors, labels, hyperparams):
     device = "cuda" if torch.cuda.is_available() else 'cpu'
 
     ### Data preparation
-    X = tensor(errors, device=device)
+    X = np.transpose(np.vstack((errors,peaks)))
+    X = tensor(X, device=device)
     Y = tensor(labels, device=device)
     dataset = TensorDataset(X.float(), Y.float())
     train_loader = DataLoader(dataset, batch_size, shuffle=True)
 
     ### Model initialization
-    network = nn.Sequential(nn.Linear(1, hidden_neurons), 
+    network = nn.Sequential(nn.Linear(2, hidden_neurons), 
                             nn.Sigmoid(), 
                             nn.Dropout(p_drop), 
                             nn.Linear(hidden_neurons, 1),
@@ -93,7 +160,7 @@ def train_neural_network(errors, labels, hyperparams):
     optimizer = optim.Adam(network.parameters(), lr=learning_rate)
     loss_function = nn.L1Loss() #nn.MSELoss() # #nn.HuberLoss()
     losses = []
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         loss = 0
         for e, y in train_loader:
             e = torch.unsqueeze(e, dim=1)
@@ -107,7 +174,7 @@ def train_neural_network(errors, labels, hyperparams):
         loss = loss / len(train_loader)
         losses.append(loss)
 
-    R2 = r2_score(Y.cpu().detach().numpy(), network(torch.unsqueeze(X, dim=1).float()).cpu().detach().numpy())
+    R2 = r2_score(Y.cpu().detach().numpy(), network(X.float()).cpu().detach().numpy())
     print(f'R2-score: {R2}')
     plt.plot(losses)
     plt.xlabel('Epochs')
@@ -169,31 +236,33 @@ def pipeline(config_path):
     with open(config_path) as config_file:
         config = yaml.safe_load(config_file)
 
-    dataset_path     = config['data']['path_data_augmented']
-    artif_data_setup = config['data']['artificial_data_setting']
-    reconstr_type    = config['pipeline_iv']['reconstructor']
-    model_path       = config['pipeline_iv'][reconstr_type]['model_path']
-    latent_dim       = config['pipeline_iv'][reconstr_type]['latent_dim']
-    hyperparams      = config['pipeline_iv']['neural_net']['hyperparams']
-    plot_path        = config['results']['plot_path']
+    dataset_path     = config['data']['path_data']
+    data_settings     = config['data']['data_setting']
+    reconstr_type     = config['reconstructor']['type']
+    reconstr_setting  = config['reconstructor'][reconstr_type]
+    hyperparams      = config['regressor']['neural_net']
+    """     plot_path        = config['results']['plot_path']
     plot_format      = config['results']['figure_format']
-    model_save_path  = config['results']['model_path']
+    model_save_path  = config['results']['model_path'] """
 
 
     ### Pipeline stages
     # 1) data processing stage
-    X, Y = load_dataset(dataset_path, artif_data_setup)
-    reconstructer = load_reconstructor(reconstr_type, model_path, latent_dim)
+    X, Y = load_dataset(dataset_path, data_settings)
+    reconstructer = load_reconstructor(reconstr_type, reconstr_setting)
     X_e = compute_reconstruction_errors(spectra=X, dim_reducer=reconstructer)
-    visualize_data(X_e, Y, artif_data_setup)
+    #detector = OS_CFAR(N=190, T=6.9, N_protect=20)
+    #N   = detect_peaks(spectra=X, peak_detector=detector) 
+    visualize_data(X_e, Y, data_settings)
 
     # 2) training stage
-    network = train_neural_network(errors=X_e, labels=Y, hyperparams=hyperparams)
+    raise
+    network = train_neural_network(errors=X_e, peaks=N, labels=Y, hyperparams=hyperparams)
 
     # 3) evaluation stage
-    visualize(X_e, Y, network, plot_path, plot_format)
-    save_model(model_save_path, reconstructer, network)
-    visualize_deploy(X, Y, reconstructer, network)
+    #visualize(X_e, Y, network, plot_path, plot_format)
+    #save_model(model_save_path, reconstructer, network)
+    #visualize_deploy(X, Y, reconstructer, network)
 
 
 if __name__ == "__main__":

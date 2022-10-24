@@ -44,7 +44,7 @@
  2) train autoencoder in unsupervised manner
  3) normalize and augment (space shift, mirror) labeled data
  4) extract features with autoencoder (e.g. 20-dim embedding vector)
- 4) use features and labeled data to learn a regressor (e.g. shallow neural network or gaussian process)
+ 5) use features and labeled data to learn a regressor (e.g. shallow neural network or gaussian process)
  
  + representation learning with big data coverage
  + very well augmentable
