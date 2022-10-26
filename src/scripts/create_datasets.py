@@ -3,10 +3,6 @@ from config.imports import *
 from src.lib.dataProcessing.data_processer import DataProcesser
 
 
-def visualize():
-    pass
-
-
 def main():
     """ Script to create datasets from database. """
 
@@ -24,8 +20,8 @@ def main():
 
     ###  2) Create Data for Supervised Learning of Classifier
     txt_dir = 'datasets\\labeled\\labels_txt'
-    loader.create_regression_data(w_range, txt_dir, return_peak_count=True,
-                                  augment=False, space_shifts=2, mirroring=False,
+    loader.create_regression_data(w_range, txt_dir, return_peak_count=False,
+                                  augment=True, space_shifts=10, mirroring=True,
                                         saving_path='datasets/labeled')
     
 

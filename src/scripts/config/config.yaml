@@ -39,7 +39,7 @@ regressor:
         kernel: Matern 
     neural_net:
         hidden_neurons: 100
-        dropout:        0.0
+        dropout:        0.05
         batch_size:     16
         learning_rate:  0.01
         epochs:         100

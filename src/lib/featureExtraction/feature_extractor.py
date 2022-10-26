@@ -4,32 +4,32 @@ import matplotlib.pyplot as plt
 
 from scipy.signal import peak_widths
 from scipy.stats import entropy
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
 
 from src.lib.featureExtraction.norms import *
 
 
- 
 class FeatureExtracter():
-    """ ... """
-
+    """ Class for feature selection, extraction and transformation. """
     def __init__(self, peak_detector, reconstructor, seed):
         np.random.seed(seed)
         self.detector = peak_detector
         self.reconstructor = reconstructor
         self.whiteNoise = np.random.normal(0.25, 2.52, size=1024)
-        self.features = ["reconstruction_error"]
+        self.features = list()
+        self.scaler = 0, 1
 
     
 
     def set_features(self, feature_list):
-        """ ... """
+        """ Manually sets features to be extracted. """
         self.features = feature_list
 
     
 
     def extract_reconstruction_error(self, X):
-        """ ... """
+        """ Extracts reconstruction error as 1-dim. feature. """
         if X.shape == 1:
             X = np.expand_dims(X, axis=0)
 
@@ -105,7 +105,7 @@ class FeatureExtracter():
 
 
 
-    def extract_from_dataset(self, X):
+    def extract_from_dataset(self, X, rescale=False):
         """ Extracts features from dataset based on selected features. """
 
         if len(X.shape) == 1:
@@ -126,7 +126,15 @@ class FeatureExtracter():
             noise_features = self.extract_noise_correlations(X)
             features.append(noise_features)
 
-        return np.hstack(tuple(features))
+        V = np.hstack(tuple(features))
+
+        if rescale:
+            scaler = StandardScaler()
+            scaler.fit(V)
+            self.scaler = (scaler.mean_, scaler.scale_)
+        
+        mean, scale = self.scaler
+        return (V - mean) / scale
 
 
 
@@ -134,7 +142,7 @@ class FeatureExtracter():
         """ Mean R2-score of cross-validation on given data set with given regressor. """
 
         X, Y = eval_dataset
-        V = self.extract_from_dataset(X)
+        V = self.extract_from_dataset(X, rescale=True)
 
         k_fold = KFold(n_splits=folds)
         r2_scores = list()
@@ -173,6 +181,7 @@ class FeatureExtracter():
                     "noise_correlation"]
 
         iter = 1
+        log = dict()
         while len(features) > 1:
 
             print(f"-------------- ITERATION {iter} -------------- ")
@@ -190,11 +199,15 @@ class FeatureExtracter():
                 self.features.remove(feature)
 
             most_significant_feature = max(significance_dict, key=significance_dict.get)
+            log[iter] = significance_dict
 
             self.features.append(most_significant_feature)
             features.remove(most_significant_feature)
-
+            
+            print(f"Added feature: {most_significant_feature}\n")
             iter += 1
+
+        return log
 
 
 
@@ -220,6 +233,7 @@ class FeatureExtracter():
         print(f"Reference initial R2: {r2_performance}\n")
 
         iter = 1
+        log = dict()
         while len(self.features) > 1:
 
             print(f"-------------- ITERATION {iter} -------------- ")
@@ -237,11 +251,15 @@ class FeatureExtracter():
 
                 self.features.append(feature)
 
+            log[iter] = redundancy_dict
+
             redundant_feature = max(redundancy_dict, key=redundancy_dict.get)
             self.features.remove(redundant_feature)
 
             print(f"Removed feature: {redundant_feature}\n")
             iter += 1
+        
+        return log
 
 
     

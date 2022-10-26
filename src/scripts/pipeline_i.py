@@ -14,7 +14,6 @@ from src.lib.featureExtraction.autoencoder import Autoencoder
 from src.lib.featureExtraction.pca import PCA
 from src.lib.featureExtraction.feature_extractor import FeatureExtracter
 from src.lib.neuralNetworks.dense_networks import VanillaNeuralNetwork as NeuralNetwork
-from src.lib.classifiers.intuitive_feature_based import PeakFeatureBasedRater
 
 
 def load_dataset(path, artif_data_setup):
@@ -52,44 +51,6 @@ def load_reconstructor(reconstructor, reconstr_settings):
     return model
 
 
-def feature_transformation(X, feature_extractor, scaling=True):
-
-    V = feature_extractor.extract_from_dataset(X)
-    scaler = StandardScaler()
-
-    if scaling:
-        scaler.fit(V)
-        V = scaler.transform(V)
-        scale, mean = scaler.scale_, scaler.mean_
-    else:
-        scale, mean = 1, 0
-    
-    scaler = (scale, mean)
-    return V, scaler
-
-
-def save_model(model_dir, feature_extracter, scaler, regressor):
-    path = f'{model_dir}\\intuitive_feature_based_rater.pickle'
-    rater = PeakFeatureBasedRater(feature_extracter, scaler, regressor)
-    with open(path, 'wb') as file:
-        pickle.dump(rater, file)
-    print(f'Saved final model in {model_dir}.')
-
-
-def visualize_deploy(X, Y, feature_extracter, scaler, regressor):
-    plt.close()
-    rater = PeakFeatureBasedRater(feature_extracter, scaler, regressor)
-    Y_pred = rater.rate(X)
-    for _ in range(10):
-        idx = np.random.randint(0, len(Y))
-        x = X[idx]
-        y = Y[idx]
-        y_pred = Y_pred[idx]
-        plt.plot(x)
-        plt.title('Label: {:.2f}, Predicted: {:.2f}'.format(y,y_pred))
-        plt.show()
-
-
 ##########################################################################################
 #                                   P I P E L I N E
 ##########################################################################################
@@ -115,20 +76,21 @@ def pipeline(config_path):
     reconstructor = load_reconstructor(reconstr_type, reconstr_setting)
     peak_detector = OS_CFAR(N=190, T=6.9, N_protect=20)
     feature_extracter = FeatureExtracter(peak_detector, reconstructor, seed)
-    neural_net = NeuralNetwork(regressor_setting)
+    neural_net = NeuralNetwork(hyperparams=regressor_setting)
 
     # 1) data processing stage
     X, Y = load_dataset(dataset_path, data_settings)
     
-    feature_extracter.set_features(['reconstruction_error', 'n_peak', 'min_to_max'])
-    V = feature_extracter.extract_from_dataset(X)
+    feature_extracter.feature_forward_selection((X,Y), neural_net)
+    #feature_extracter.set_features(['reconstruction_error', 'n_peak', 'min_to_max'])
+    #V = feature_extracter.extract_from_dataset(X, rescale=True)
 
     # 2) training stage
-    V_train, V_test, Y_train, Y_test = train_test_split(V, Y, test_size=0.2, random_state=seed)
-    neural_net.fit(V_train, Y_train, print_training_curve=True)
+    #V_train, V_test, Y_train, Y_test = train_test_split(V, Y, test_size=0.2, random_state=seed)
+    #neural_net.fit(V_train, Y_train, print_training_curve=True, self_normalizing=False)
 
-    r2_test = neural_net.score(V_test, Y_test)
-    print(f"Test R2 score: {r2_test}")
+    #r2_test = neural_net.score(V_test, Y_test)
+    #print(f"Test R2 score: {r2_test}")
 
     # 3) evaluation
     #save_model(model_save_path, feature_extracter, scaler, gp_regressor)

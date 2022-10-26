@@ -1,14 +1,15 @@
 import numpy as np
 
 def L2_norm(X1, X2):
-    """ ... """
+    """ Computes row wise L2 distance between two matrices. """
 
     l2 = np.linalg.norm(X1, X2, axis=1)
     return l2
 
 
 def window_loss(X1, X2, window_size=9):
-    """ ... """
+    """ Computes row wise windowed L2 distance between two matrices """
+
     if len(X1.shape) == 1:
         X1 = np.expand_dims(X1, axis=0)
     if len(X2.shape) == 1:
@@ -33,7 +34,8 @@ def window_loss(X1, X2, window_size=9):
 
 
 def signal_window(x, idx, shift):
-    """ ... """
+    """ Generates window of signal x at index idx with length 2*shift, with zero passing at signal borders. """
+    
     idx_left = idx - shift
     idx_right = idx + shift + 1
 

@@ -17,8 +17,31 @@ class VanillaNeuralNetwork():
         self.device = 'cuda' if cuda.is_available() else 'cpu'
         self.network = None
 
+    
+    def network_architecture(self, input_dim, hidden_neurons, p_drop, self_normalize):
+        
+        if self_normalize:
+            hidden_layer = nn.Linear(input_dim, hidden_neurons, bias=False)
+            output_layer = nn.Linear(hidden_neurons, 1)
+            activation   = nn.SELU()
+            dropout      = nn.AlphaDropout(p_drop)
+            nn.init.kaiming_normal_(hidden_layer.weight)
+            nn.init.kaiming_normal_(output_layer.weight)
+        else:
+            hidden_layer = nn.Linear(input_dim, hidden_neurons, bias=True)
+            output_layer = nn.Linear(hidden_neurons, 1)
+            activation   = nn.Sigmoid()
+            dropout      = nn.Dropout(p_drop)
 
-    def fit(self, X_train, Y_train, verbose=True, print_training_curve=False):
+        network = nn.Sequential(hidden_layer,
+                                activation,
+                                dropout,
+                                output_layer,
+                                nn.Sigmoid()) 
+        return network
+
+
+    def fit(self, X_train, Y_train, self_normalizing=False, verbose=True, print_training_curve=False):
         """ Trains a one-layer neural network with modular input data dimension. """
 
         ### Load hyperparameters
@@ -40,11 +63,7 @@ class VanillaNeuralNetwork():
         train_loader = DataLoader(dataset, batch_size, shuffle=True)
 
         ### Model initialization
-        network = nn.Sequential(nn.Linear(n_dim, hidden_neurons), 
-                                nn.Sigmoid(), 
-                                nn.Dropout(p_drop), 
-                                nn.Linear(hidden_neurons, 1),
-                                nn.Sigmoid())
+        network = self.network_architecture(n_dim, hidden_neurons, p_drop, self_normalizing)
         network.to(self.device)
 
         ### Model training
@@ -59,7 +78,7 @@ class VanillaNeuralNetwork():
                 x = torch.unsqueeze(x, dim=1)
                 optimizer.zero_grad() 
                 y_pred = network(x)
-                y_pred = torch.squeeze(y_pred)
+                y_pred = torch.reshape(y_pred, y.size())
                 train_loss = loss_function(y, y_pred)
                 train_loss.backward()
                 optimizer.step()
@@ -99,10 +118,3 @@ class VanillaNeuralNetwork():
 
 
 
-class SelfNormalizingNeuralNetwork():
-    """ One Layer Network with SELU activation function and alpha-dropout. """
-
-    def __init__(self):
-        super().__init__()
-
-         
