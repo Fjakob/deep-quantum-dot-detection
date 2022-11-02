@@ -9,7 +9,7 @@ from src.lib.neuralNetworks.decoder import DeepDecoder as Decoder
 
 class Autoencoder(nn.Module, LatentExtracter):
     """ Autoencoder for dimensionality reduction. """
-    def __init__(self, latent_dim=12):
+    def __init__(self, latent_dim=12, epsilon=1e-12):
         if latent_dim <= 0:
             raise ValueError("Latent dimension must be positive number")
 
@@ -17,7 +17,7 @@ class Autoencoder(nn.Module, LatentExtracter):
         device = "cuda" if cuda.is_available() else "cpu"
 
         self.encoder = Encoder(latent_dim)
-        self.decoder = Decoder(latent_dim)
+        self.decoder = Decoder(latent_dim, epsilon)
 
         self.device = device
         self.to(device)
@@ -36,7 +36,7 @@ class Autoencoder(nn.Module, LatentExtracter):
         except(RuntimeError):
             raise ValueError("Loaded model doesn't fit object latent dimension.")
 
-        self.eval()
+        #self.eval()
         
         if model_summary:
             summary(self, (1,1024))

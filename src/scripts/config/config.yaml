@@ -6,8 +6,9 @@ base:
 data:
     path_data: 'datasets\labeled\data_w30_labeled.pickle'
     path_data_augmented: 'datasets\labeled\data_w30_labeled_augmented.pickle'
+    path_validation_data: 'datasets\labeled\data_w30_labeled_validation.pickle'
     data_setting:
-        add_artificial: True
+        add_artificial: False
         artificial_samples: 20
         max_artificial_peak_height: 15
 
@@ -16,8 +17,9 @@ reconstructor:
     # select type betweeen autoencoder or pca
     type: autoencoder
     autoencoder:
-        latent_dim: 24
-        model_path: models/autoencoders
+        latent_dim: 32
+        epsilon:    0.000000000001
+        model_path: models/autoencoders/epsilon_1e-12
     pca:
         latent_dim: 512
         model_path: models/pca
@@ -34,10 +36,11 @@ detector:
 neural_net:
     hidden_neurons: 100
     dropout:        0.0
-    batch_size:     16
+    batch_size:     64
     learning_rate:  0.01
-    epochs:         100
+    epochs:         200
     self_normalize: False
+    epsilon:        0.02
 
 
 results:

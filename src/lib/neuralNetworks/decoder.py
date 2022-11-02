@@ -32,8 +32,9 @@ class Decoder(nn.Module):
 
 class DeepDecoder(nn.Module):
     """ Decoder neural network consisting of 6 inverted convolutional layers. """
-    def __init__(self, latent_dim):
+    def __init__(self, latent_dim, output_epsilon=0):
         super().__init__()
+        self.epsilon = output_epsilon
         self.activation = nn.ReLU()
         self.dense1   = nn.Linear(latent_dim, 128*36)
         self.conv1T   = nn.ConvTranspose1d(128, 64, 7, stride=3)
@@ -63,5 +64,5 @@ class DeepDecoder(nn.Module):
         out = self.bn5(out)
         out = self.activation(self.conv5T(out))
         out = self.bn6(out)
-        out = sigmoid(self.conv6T(out))
+        out = (1+self.epsilon)*sigmoid(self.conv6T(out)) - self.epsilon/2
         return out

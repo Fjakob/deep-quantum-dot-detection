@@ -44,6 +44,8 @@ class VanillaNeuralNetwork():
     def fit(self, X_train, Y_train, verbose=True, print_training_curve=False):
         """ Trains a one-layer neural network with modular input data dimension. """
 
+        torch.manual_seed(42)
+
         ### Load hyperparameters
         hidden_neurons = self.hyperparams['hidden_neurons']
         p_drop         = self.hyperparams['dropout']
@@ -51,6 +53,7 @@ class VanillaNeuralNetwork():
         learning_rate  = self.hyperparams['learning_rate']
         epochs         = self.hyperparams['epochs']
         self_normalize = self.hyperparams['self_normalize']
+        epsilon        = self.hyperparams['epsilon']
 
         ### Extract dimensions
         if X_train.shape == 1:
@@ -78,7 +81,7 @@ class VanillaNeuralNetwork():
             for x, y in train_loader:
                 x = torch.unsqueeze(x, dim=1)
                 optimizer.zero_grad() 
-                y_pred = network(x)
+                y_pred = (1 + epsilon) * network(x) - epsilon/2
                 y_pred = torch.reshape(y_pred, y.size())
                 train_loss = loss_function(y, y_pred)
                 train_loss.backward()
@@ -104,12 +107,13 @@ class VanillaNeuralNetwork():
         """ Computes Neural Network Output for given Input. """
 
         self.network.eval()
+        epsilon = self.hyperparams['epsilon']
 
         if len(X.shape) == 1:
             X = np.expand_dims(X, axis=1)
-
+        
         X = tensor(X, device=self.device).float()
-        Y_pred = self.network(X)
+        Y_pred = (1 + epsilon) * self.network(X) - epsilon/2
         return Y_pred.cpu().detach().numpy()
 
     

@@ -7,7 +7,7 @@ from scipy.stats import entropy
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
 
-from src.lib.featureExtraction.norms import *
+import src.lib.featureExtraction.norms as norms
 
 
 class FeatureExtracter():
@@ -20,7 +20,7 @@ class FeatureExtracter():
         self.features = list()
         self.scaler = 0, 1
 
-    
+
 
     def set_features(self, feature_list):
         """ Manually sets features to be extracted. """
@@ -28,14 +28,14 @@ class FeatureExtracter():
 
     
 
-    def extract_reconstruction_error(self, X):
+    def extract_reconstruction_error(self, X, loss_window_size):
         """ Extracts reconstruction error as 1-dim. feature. """
         if X.shape == 1:
             X = np.expand_dims(X, axis=0)
 
         X_norm, _, X_hat = self.reconstructor.normalize_and_extract(X)
-        reconstruction_errors = L2_norm(X_norm, X_hat)
-        #reconstruction_errors = window_loss(X_hat, X_norm)
+        #reconstruction_errors = L2_norm(X_norm, X_hat)
+        reconstruction_errors = norms.window_loss(X_hat, X_norm, loss_window_size)
 
         return np.expand_dims(reconstruction_errors, axis=1)
 
@@ -60,7 +60,7 @@ class FeatureExtracter():
                     d_peaks = [abs(v - peak_idx[(i+1)%len(peak_idx)]) for i, v in enumerate(peak_idx)][:-1]
                     d_min = np.min(d_peaks)
                 else:
-                    d_min = 1024
+                    d_min = 512
 
                 # Width among peaks:
                 widths = peak_widths(x, peak_idx, rel_height=0.7)
@@ -106,28 +106,32 @@ class FeatureExtracter():
 
 
 
-    def extract_from_dataset(self, X, rescale=False):
+    def extract_from_dataset(self, X, rescale=False, verbose=True, loss_window_size=9):
         """ Extracts features from dataset based on selected features. """
 
         if len(X.shape) == 1:
             X = np.expand_dims(X, axis=0)
 
-        print("Extracting features...")
+        print("Extracting features...") if verbose else None
         features = list()
 
-        if "reconstruction_error" in self.features:
-            error_features = self.extract_reconstruction_error(X)
-            features.append(error_features)
-            
-        if [any for any in ["n_peak", "d_min", "w_max", "min_to_max", "x_max"] if any in self.features]:
-            peak_features = self.extract_peak_measures(X)
-            features.append(peak_features)
+        if "latent_representation" in self.features:
+            V = self.extract_latent_features(X)
 
-        if "noise_correlation" in self.features:
-            noise_features = self.extract_noise_correlations(X)
-            features.append(noise_features)
+        else:
+            if "reconstruction_error" in self.features:
+                error_features = self.extract_reconstruction_error(X, loss_window_size)
+                features.append(error_features)
+                
+            if [any for any in ["n_peak", "d_min", "w_max", "min_to_max", "x_max"] if any in self.features]:
+                peak_features = self.extract_peak_measures(X)
+                features.append(peak_features)
 
-        V = np.hstack(tuple(features))
+            if "noise_correlation" in self.features:
+                noise_features = self.extract_noise_correlations(X)
+                features.append(noise_features)
+
+            V = np.hstack(tuple(features))
 
         if rescale:
             scaler = StandardScaler()
@@ -265,5 +269,6 @@ class FeatureExtracter():
 
     
     def extract_latent_features(self, X):
-        _, Z, _ = self.reconstructor.normalize_and_extract(X)
-        return Z
+        _, V, _ = self.reconstructor.normalize_and_extract(X)
+
+        return V

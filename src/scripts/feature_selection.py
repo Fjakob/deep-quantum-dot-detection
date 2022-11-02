@@ -29,42 +29,43 @@ def load_dataset(path, artif_data_setup):
         X = np.vstack((X, X_art)) 
         Y = np.hstack((Y, Y_art))
 
-    X, Y = shuffle(X, Y)
-    Y = np.ravel(Y)
+    #X, Y = shuffle(X, Y)
+    #Y = np.ravel(Y)
     
     return X, Y
 
 
 def main():
 
-    mode = 'forward_selection'
-    #mode = 'backward_elimination'
+    #mode = 'forward_selection'
+    mode = 'backward_elimination'
     retrain = True
 
     if retrain:
         ### setup
-        dataset_path  = 'datasets\labeled\data_w30_labeled_augmented.pickle'
-        data_settings = {'add_artificial': True,
+        dataset_path  = 'datasets\labeled\data_w30_labeled.pickle'
+        data_settings = {'add_artificial': False,
                          'artificial_samples': 15,
                          'max_artificial_peak_height': 15}
 
         hyperparams   = {'hidden_neurons': 100,
                          'dropout':        0.0,
-                         'batch_size':     16,
+                         'batch_size':     32,
                          'learning_rate':  0.01,
-                         'epochs':         100,
-                         'self_normalize': False}
+                         'epochs':         150,
+                         'self_normalize': False,
+                         'epsilon':        0.01}
 
-        latent_dim = 64
+        latent_dim = 32
 
         ### preparation
-        reconstructor = Autoencoder(latent_dim)
+        reconstructor = Autoencoder(latent_dim, epsilon=1e-12)
         peak_detector = OS_CFAR(N=190, T=6.9, N_protect=20)
         feature_extracter = FeatureExtracter(peak_detector, reconstructor, seed=42)
         neural_net = NeuralNetwork(hyperparams)
 
         X, Y = load_dataset(dataset_path, data_settings)
-        reconstructor.load_model(f'models/autoencoders/autoencoder{latent_dim}.pth')
+        reconstructor.load_model(f'models/autoencoders/epsilon_1e-12/autoencoder{latent_dim}.pth')
 
         ### selection algorithm
         if mode == 'forward_selection':

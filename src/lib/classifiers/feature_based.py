@@ -9,7 +9,10 @@ class SpectrumClassifier():
         self.regressor          = regressor
 
     def rate(self, X):
-        pass
+        V = self.feature_extracter.extract_from_dataset(X, rescale=False, verbose=False)
+        Y = self.regressor.predict(V)
+        return Y
 
-    def score(self, X):
-        pass
+    def score(self, X, Y):
+        V = self.feature_extracter.extract_from_dataset(X, rescale=False, verbose=False)
+        return self.regressor.score(V, Y)

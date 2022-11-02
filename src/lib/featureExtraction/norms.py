@@ -7,7 +7,7 @@ def L2_norm(X1, X2):
     return l2
 
 
-def window_loss(X1, X2, window_size=9):
+def window_loss(X1, X2, window_size=21):
     """ Computes row wise windowed L2 distance between two matrices """
 
     if len(X1.shape) == 1:

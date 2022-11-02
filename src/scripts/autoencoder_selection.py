@@ -26,10 +26,11 @@ def main():
 
         hyperparams   = {'hidden_neurons': 100,
                          'dropout':        0.0,
-                         'batch_size':     16,
+                         'batch_size':     64,
                          'learning_rate':  0.01,
-                         'epochs':         100,
-                         'self_normalize': True}
+                         'epochs':         150,
+                         'self_normalize': False,
+                         'epsilon':        0.02}
 
         neural_net = NeuralNetwork(hyperparams)
         feature_extracter = FeatureExtracter(None, None, seed=42)
@@ -39,7 +40,7 @@ def main():
 
 
         ### test latent dimensions
-        latent_dims = [12, 16, 24, 32, 64, 128, 256]
+        latent_dims = [8, 16, 24, 32, 48, 64]
         scores    = list()
         pearsons  = list()
         spearmans = list()
@@ -47,7 +48,7 @@ def main():
         for latent_dim in latent_dims:
             
             reconstructor = Autoencoder(latent_dim)
-            reconstructor.load_model(f'models/autoencoders/autoencoder{latent_dim}.pth')
+            reconstructor.load_model(f'models/autoencoders/epsilon_1e-12/autoencoder{latent_dim}.pth')
             feature_extracter.reconstructor = reconstructor
 
             score = feature_extracter.evaluate_features((X,Y), neural_net, folds=5)
@@ -78,31 +79,25 @@ def main():
     pearsons    = log['Pearsons']
     spearmans   = log['Spearmans']
 
+    ### Use Latex text interpreter
+    plt.rcParams['text.usetex'] = True
+
     ### Cross Validation Scores
-    plt.figure()
+    plt.figure(figsize=(6,4), dpi=1200)
+    plt.subplot(2,1,1)
     plt.plot(latent_dims, scores, '-*')
-    plt.xlabel('Latent dimension')
     plt.ylabel('Cross Validation Score')
-    plt.title('Model Capability')
     plt.grid()
-    plt.show()
 
     ### Spearman Correlation
-    plt.figure()
-    plt.subplot(2,1,1)
-    plt.plot(latent_dims, spearmans, '-*')
-    plt.ylabel('Spearmans R')
-    plt.grid()
-
-    ### Pearson Correlation
     plt.subplot(2,1,2)
-    plt.plot(latent_dims, pearsons, '-*')
+    plt.plot(latent_dims, np.abs(spearmans), '-*')
     plt.xlabel('Latent dimension')
-    plt.ylabel('Pearsons R')
+    plt.ylabel('Spearman Correlation')
     plt.grid()
 
-    plt.suptitle('Feature-Label correlation')
-    plt.show()
+    plt.suptitle('Label - $e_r$ interaction')
+    plt.savefig('autoencoder_selection.png')
 
 
 
