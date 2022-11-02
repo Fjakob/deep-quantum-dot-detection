@@ -3,7 +3,7 @@ import numpy as np
 def L2_norm(X1, X2):
     """ Computes row wise L2 distance between two matrices. """
 
-    l2 = np.linalg.norm(X1, X2, axis=1)
+    l2 = np.linalg.norm(X1-X2, axis=1)
     return l2
 
 

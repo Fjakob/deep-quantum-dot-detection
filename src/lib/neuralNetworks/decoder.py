@@ -1,4 +1,4 @@
-from torch import nn, sigmoid
+from torch import nn, sigmoid, reshape
 
 
 class Decoder(nn.Module):
@@ -30,7 +30,6 @@ class Decoder(nn.Module):
         return out  
 
 
-
 class DeepDecoder(nn.Module):
     """ Decoder neural network consisting of 6 inverted convolutional layers. """
     def __init__(self, latent_dim):
@@ -52,7 +51,7 @@ class DeepDecoder(nn.Module):
             
     def forward(self, input):
         out = self.activation(self.dense1(input))
-        out = out.view(-1, 128, 36)
+        out = reshape(out, (out.size()[0], 128, 36)) #out.view(-1, 128, 36)
         out = self.bn1(out)
         out = self.activation(self.conv1T(out))
         out = self.bn2(out)

@@ -41,7 +41,7 @@ class VanillaNeuralNetwork():
         return network
 
 
-    def fit(self, X_train, Y_train, self_normalizing=False, verbose=True, print_training_curve=False):
+    def fit(self, X_train, Y_train, verbose=True, print_training_curve=False):
         """ Trains a one-layer neural network with modular input data dimension. """
 
         ### Load hyperparameters
@@ -50,6 +50,7 @@ class VanillaNeuralNetwork():
         batch_size     = self.hyperparams['batch_size']
         learning_rate  = self.hyperparams['learning_rate']
         epochs         = self.hyperparams['epochs']
+        self_normalize = self.hyperparams['self_normalize']
 
         ### Extract dimensions
         if X_train.shape == 1:
@@ -63,7 +64,7 @@ class VanillaNeuralNetwork():
         train_loader = DataLoader(dataset, batch_size, shuffle=True)
 
         ### Model initialization
-        network = self.network_architecture(n_dim, hidden_neurons, p_drop, self_normalizing)
+        network = self.network_architecture(n_dim, hidden_neurons, p_drop, self_normalize)
         network.to(self.device)
 
         ### Model training
@@ -102,7 +103,9 @@ class VanillaNeuralNetwork():
     def predict(self, X):
         """ Computes Neural Network Output for given Input. """
 
-        if X.shape == 1:
+        self.network.eval()
+
+        if len(X.shape) == 1:
             X = np.expand_dims(X, axis=1)
 
         X = tensor(X, device=self.device).float()

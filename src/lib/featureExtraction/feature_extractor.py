@@ -34,7 +34,8 @@ class FeatureExtracter():
             X = np.expand_dims(X, axis=0)
 
         X_norm, _, X_hat = self.reconstructor.normalize_and_extract(X)
-        reconstruction_errors = window_loss(X_hat, X_norm)
+        reconstruction_errors = L2_norm(X_norm, X_hat)
+        #reconstruction_errors = window_loss(X_hat, X_norm)
 
         return np.expand_dims(reconstruction_errors, axis=1)
 

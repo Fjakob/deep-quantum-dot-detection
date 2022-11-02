@@ -66,10 +66,10 @@ def validate(X_pca, X, latent_dims):
 
 def main():
 
-    dim_ae  = 128
-    dim_pca = 512
+    dim_ae  = 256
+    dim_pca = 256
 
-    #autoencoder = load_autoencoder(latent_dim = dim_ae)
+    autoencoder = load_autoencoder(latent_dim = dim_ae)
     pca = PCA(latent_dim = dim_pca)
 
     # fit PCA to whole dataset
@@ -77,18 +77,16 @@ def main():
         X_train = np.asarray(pickle.load(f))
     pca.fit(X_train)
 
-    # load datasets
-    #with open('dataSets/labeled/data_w30_labeled.pickle', 'rb') as f:
-    #    X, _ = pickle.load(f)
-    #np.random.shuffle(X)
+    #load datasets
+    with open('dataSets/labeled/data_w30_labeled.pickle', 'rb') as f:
+       X, _ = pickle.load(f)
+    np.random.shuffle(X)
 
-    #X_norm, _, X_hat = autoencoder.normalize_and_extract(X)
-    #_, _, X_hat_pca = pca.normalize_and_extract(X)
+    X_norm, _, X_hat = autoencoder.normalize_and_extract(X)
+    _, _, X_hat_pca = pca.normalize_and_extract(X)
 
-    #plot_comparison(X_norm, X_hat, X_hat_pca, plots=15)
+    plot_comparison(X_norm, X_hat, X_hat_pca, plots=15)
 
-    with open(f'models/pca/pca{dim_pca}.pickle', 'wb') as file:
-        pickle.dump((pca.V, pca.mean), file)
 
 
 if __name__ == '__main__':

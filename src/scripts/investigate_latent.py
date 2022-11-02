@@ -1,4 +1,5 @@
 from config.imports import *
+import torch
 
 from src.lib.featureExtraction.autoencoder import Autoencoder
 
@@ -60,8 +61,8 @@ def main():
 
     errors = []
 
-    latent_dims = [12, 16, 32, 64, 128, 256]
-    #latent_dims = [32]
+    #latent_dims = [12, 16, 24, 32, 64, 128, 256]
+    latent_dims = [32]
 
     for latent_dim in latent_dims:
         shift = 200
@@ -80,19 +81,19 @@ def main():
             x_1, z_1, x_r1 = autoencoder.normalize_and_extract(x)
             x = np.roll(x, shift=shift)
             x_2, z_2, x_r2 = autoencoder.normalize_and_extract(x)
-            """
+
             print(f"Norm between x1 and x2: {np.linalg.norm(x_1-x_2)}")
             print(f"Norm between z1 and z2: {np.linalg.norm(z_1-z_2)}")
             print(f"Norm between x1-x_r1 and x2-x_r2: {np.linalg.norm(x_1-x_r1)} and {np.linalg.norm(x_2-x_r2)}")
             print(f"window_loss between x1-x_r1 and x2-x_r2: {window_loss(x_1, x_r1)} and {window_loss(x_2, x_r2)}")
             print('--------------------')
-            """
+
             if np.linalg.norm(x_1-x_r1) < 5:
                 recon_errors.append(np.linalg.norm(x_1-x_r1))
                 recon_errors.append(np.linalg.norm(x_2-x_r2))
                 recon_errors_shape.append(window_loss(x_1, x_r1))
                 recon_errors_shape.append(window_loss(x_2, x_r2))
-            """
+
             plt.figure(figsize=(10,6))
             plt.suptitle(f'Label: {Y[idx]}')
             plt.subplot(3,1,1)
@@ -105,10 +106,9 @@ def main():
             plt.plot(z_1[0])
             plt.plot(z_2[0])
             plt.show()
-            """
+
             idx+=1
             
-
         print(f"Mean loss: {np.mean(recon_errors)}")
         print(f"Mean shape loss: {np.mean(recon_errors_shape)}\n")
 

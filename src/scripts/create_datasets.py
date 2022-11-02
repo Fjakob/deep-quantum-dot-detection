@@ -21,7 +21,7 @@ def main():
     ###  2) Create Data for Supervised Learning of Classifier
     txt_dir = 'datasets\\labeled\\labels_txt'
     loader.create_regression_data(w_range, txt_dir, return_peak_count=False,
-                                  augment=True, space_shifts=10, mirroring=True,
+                                  augment=False, space_shifts=2, mirroring=False,
                                         saving_path='datasets/labeled')
     
 

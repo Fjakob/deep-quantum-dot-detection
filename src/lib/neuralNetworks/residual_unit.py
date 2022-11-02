@@ -27,7 +27,6 @@ class ResidualBlock(nn.Module):
         return out
 
 
-
 class ResidualStack(nn.Module):
     """ Residual Unit consisting of multiple residual Blocks. """
     def __init__(self, channel_in, channel_out, kernel_size, mode='encode'):
