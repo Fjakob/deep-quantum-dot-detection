@@ -46,7 +46,7 @@ def main():
 
     for latent_dim in latent_dims:
         
-        autoencoder = Autoencoder(latent_dim=latent_dim)
+        autoencoder = Autoencoder(latent_dim=latent_dim, epsilon=1e-12)
         autoencoder.load_model(f'models/autoencoders/epsilon_1e-12/autoencoder{latent_dim}.pth')
 
         with open('datasets\labeled\data_w30_labeled.pickle', 'rb') as file:

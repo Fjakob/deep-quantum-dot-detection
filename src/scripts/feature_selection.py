@@ -29,30 +29,30 @@ def load_dataset(path, artif_data_setup):
         X = np.vstack((X, X_art)) 
         Y = np.hstack((Y, Y_art))
 
-    #X, Y = shuffle(X, Y)
-    #Y = np.ravel(Y)
+    X, Y = shuffle(X, Y, random_state=42)
+    Y = np.ravel(Y)
     
     return X, Y
 
 
 def main():
 
-    #mode = 'forward_selection'
-    mode = 'backward_elimination'
+    mode = 'forward_selection'
+    #mode = 'backward_elimination'
     retrain = True
 
     if retrain:
         ### setup
         dataset_path  = 'datasets\labeled\data_w30_labeled.pickle'
-        data_settings = {'add_artificial': False,
-                         'artificial_samples': 15,
+        data_settings = {'add_artificial': True,
+                         'artificial_samples': 20,
                          'max_artificial_peak_height': 15}
 
         hyperparams   = {'hidden_neurons': 100,
                          'dropout':        0.0,
-                         'batch_size':     32,
+                         'batch_size':     64,
                          'learning_rate':  0.01,
-                         'epochs':         150,
+                         'epochs':         100,
                          'self_normalize': False,
                          'epsilon':        0.01}
 

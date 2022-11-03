@@ -13,14 +13,14 @@ from feature_selection import load_dataset
 
 def main():
 
-    retrain=True
+    retrain=False
 
     if retrain:
         log = dict()
 
         ### setup
         dataset_path  = 'datasets\labeled\data_w30_labeled.pickle'
-        data_settings = {'add_artificial': False,
+        data_settings = {'add_artificial': True,
                          'artificial_samples': 20,
                          'max_artificial_peak_height': 15}
 
@@ -28,9 +28,9 @@ def main():
                          'dropout':        0.0,
                          'batch_size':     64,
                          'learning_rate':  0.01,
-                         'epochs':         150,
+                         'epochs':         100,
                          'self_normalize': False,
-                         'epsilon':        0.02}
+                         'epsilon':        0.01}
 
         neural_net = NeuralNetwork(hyperparams)
         feature_extracter = FeatureExtracter(None, None, seed=42)
@@ -83,22 +83,27 @@ def main():
     plt.rcParams['text.usetex'] = True
 
     ### Cross Validation Scores
-    plt.figure(figsize=(6,4), dpi=1200)
-    plt.subplot(2,1,1)
+    plt.figure(figsize=(6,6), dpi=1200)
+    plt.subplot(3,1,1)
     plt.plot(latent_dims, scores, '-*')
     plt.ylabel('Cross Validation Score')
     plt.grid()
 
     ### Spearman Correlation
-    plt.subplot(2,1,2)
+    plt.subplot(3,1,2)
     plt.plot(latent_dims, np.abs(spearmans), '-*')
-    plt.xlabel('Latent dimension')
     plt.ylabel('Spearman Correlation')
+    plt.grid()
+
+    ### Pearson Correlation
+    plt.subplot(3,1,3)
+    plt.plot(latent_dims, np.abs(pearsons), '-*')
+    plt.xlabel('Latent dimension')
+    plt.ylabel('Pearson Correlation')
     plt.grid()
 
     plt.suptitle('Label - $e_r$ interaction')
     plt.savefig('autoencoder_selection.png')
-
 
 
 if __name__ == "__main__":
