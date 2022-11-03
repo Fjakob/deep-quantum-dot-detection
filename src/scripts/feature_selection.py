@@ -39,7 +39,7 @@ def main():
 
     mode = 'forward_selection'
     #mode = 'backward_elimination'
-    #test
+
     retrain = True
 
     if retrain:

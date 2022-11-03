@@ -36,7 +36,7 @@ class Autoencoder(nn.Module, LatentExtracter):
         except(RuntimeError):
             raise ValueError("Loaded model doesn't fit object latent dimension.")
 
-        #self.eval()
+        self.eval()
         
         if model_summary:
             summary(self, (1,1024))
