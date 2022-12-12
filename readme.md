@@ -75,7 +75,7 @@ In the colab, upload the dataset created in the last step (might take 20 minutes
 In the notebook, network structures and latent dimensions can be specified.
 After training, the model parameters autoencoder.pth and learning curves will be downloaded.
 
-1) Evaluating training curves:
+Evaluating training curves:
 Either in the notebook or in the evaluation script:
 
 	notebooks/evaluate_training.ipynb
@@ -84,7 +84,8 @@ Downloaded training curves must be moved to folder
 
 	reports/autoencoder_training_curves/
 
-2) Deploying autoencoder parameters
+
+Deploying autoencoder parameters:
 Make sure the network structure chosen in train_autoencoder.py matches the structures in
 
 	src/lib/neuralNetworks/(encoder/decoder).py
