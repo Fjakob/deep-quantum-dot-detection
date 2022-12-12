@@ -88,6 +88,7 @@ Downloaded training curves must be moved to folder
 Make sure the network structure chosen in train_autoencoder.py matches the structures in
 
 	src/lib/neuralNetworks/(encoder/decoder).py
+	
 	src/lib/featureExtraction/autoencoder.py
 
 Move downloaded model parameters to folder
@@ -119,9 +120,11 @@ the whole project is contained). Visual Studio Code is suggested.
 To execute regression scripts, the config.yaml file has to be passed. Therefore, run 
 the script in the root folder using the command line like this:
 
-python3 src/scripts/erecon_regression.py --config=src/scripts/config/config.yaml
-python3 src/scripts/feature_regression.py --config=src/scripts/config/config.yaml
-python3 src/scripts/feature_regression_augmented.py --config=src/scripts/config/config.yaml
+	python3 src/scripts/erecon_regression.py --config=src/scripts/config/config.yaml
+
+	python3 src/scripts/feature_regression.py --config=src/scripts/config/config.yaml
+
+	python3 src/scripts/feature_regression_augmented.py --config=src/scripts/config/config.yaml
 
 The parameters of every pipeline is unifiedly set and can be changed in 
 
