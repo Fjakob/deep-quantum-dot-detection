@@ -1,6 +1,6 @@
 **Library for QD spectrum annotation/rating.**
 
-################### FRIST STEP ##########################################################
+################### FRIST STEP ###########################################
 
 Run 
 	pip install -r requirements.txt
@@ -8,7 +8,7 @@ Run
 to install all required libraries.
 
 
-################### DATA SET CREATION ##########################################################
+################### DATA SET CREATION ####################################
 Requires:
 1.) A database folder on the PC containing of the form
 	|-- folder1
@@ -45,7 +45,7 @@ Requires:
 
     as pickle file.
 
-####################### AUTOENCODER TRAINING #################################################
+####################### AUTOENCODER TRAINING ##################################
 
 The datasets can be created by using the script:
 
@@ -88,7 +88,7 @@ After training, the model parameters autoencoder.pth and learning curves will be
 	src/scripts/autoencoder_selection.py
 
 
-################### LIBRARY USAGE ##################################################
+################### LIBRARY USAGE ##################################
 
 The whole library containing algorithms is contained in
 
@@ -99,7 +99,7 @@ Examples on how to use the library are given in the scripts
 	src/scripts
 
 
-##################### SCRIPT USAGE ##################################################
+##################### SCRIPT USAGE ################################
 
 All scripts except for the regression scripts can be executed directly. Make sure 
 to execute all scripts while the root folder is 02_Software (i.e. the folder in which
@@ -117,7 +117,7 @@ The parameters of every pipeline is unifiedly set and can be changed in
 	src/scripts/config/config.yaml
 
 
-#################### TESTING #######################################################
+#################### TESTING ################################
 
 Python unit tests have been included to test the library functionality in:
 
