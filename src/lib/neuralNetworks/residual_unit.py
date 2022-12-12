@@ -23,8 +23,8 @@ class ResidualBlock(nn.Module):
         x = self.conv_block1(x)
         x = self.conv_block2(x)
         x = x + residual
-        out = self.activation(x)
-        return out
+        #x = self.activation(x)
+        return x
 
 
 class ResidualStack(nn.Module):

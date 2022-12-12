@@ -2,7 +2,7 @@ import numpy as np
 from torch import nn, cuda, tensor, load
 from torchsummary import summary
 
-from src.lib.featureExtraction.latent_extractor import LatentExtracter
+from src.lib.baseClasses.latent_extractor import LatentExtracter
 from src.lib.neuralNetworks.encoder import ResidualEncoder as Encoder
 from src.lib.neuralNetworks.decoder import DeepDecoder as Decoder
 
@@ -34,7 +34,7 @@ class Autoencoder(nn.Module, LatentExtracter):
         try:
             self.load_state_dict(load(model_path))
         except(RuntimeError):
-            raise ValueError("Loaded model doesn't fit object latent dimension.")
+             raise ValueError("Model loading error. Probably loaded model doesn't fit object latent dimension.")
 
         self.eval()
         

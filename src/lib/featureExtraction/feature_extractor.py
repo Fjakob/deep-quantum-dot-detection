@@ -1,13 +1,12 @@
 import numpy as np
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 
 from scipy.signal import peak_widths
 from scipy.stats import entropy
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
 
-import src.lib.featureExtraction.norms as norms
+import src.lib.utils.norms as norms
 
 
 class FeatureExtracter():
@@ -28,13 +27,12 @@ class FeatureExtracter():
 
     
 
-    def extract_reconstruction_error(self, X, loss_window_size):
+    def extract_reconstruction_error(self, X, loss_window_size=1):
         """ Extracts reconstruction error as 1-dim. feature. """
         if X.shape == 1:
             X = np.expand_dims(X, axis=0)
 
         X_norm, _, X_hat = self.reconstructor.normalize_and_extract(X)
-        #reconstruction_errors = L2_norm(X_norm, X_hat)
         reconstruction_errors = norms.window_loss(X_hat, X_norm, loss_window_size)
 
         return np.expand_dims(reconstruction_errors, axis=1)
@@ -106,7 +104,7 @@ class FeatureExtracter():
 
 
 
-    def extract_from_dataset(self, X, rescale=False, verbose=True, loss_window_size=9):
+    def extract_from_dataset(self, X, rescale=False, verbose=True):
         """ Extracts features from dataset based on selected features. """
 
         if len(X.shape) == 1:
@@ -120,7 +118,7 @@ class FeatureExtracter():
 
         else:
             if "reconstruction_error" in self.features:
-                error_features = self.extract_reconstruction_error(X, loss_window_size)
+                error_features = self.extract_reconstruction_error(X)
                 features.append(error_features)
                 
             if [any for any in ["n_peak", "d_min", "w_max", "min_to_max", "x_max"] if any in self.features]:
@@ -132,6 +130,9 @@ class FeatureExtracter():
                 features.append(noise_features)
 
             V = np.hstack(tuple(features))
+
+            if V.shape[1] != len(self.features):
+                raise Warning("At least one of the features not known!")
 
         if rescale:
             scaler = StandardScaler()
@@ -182,12 +183,11 @@ class FeatureExtracter():
                     "d_min",
                     "w_max",
                     "min_to_max",
-                    "x_max",
-                    "noise_correlation"]
+                    "x_max"]
 
         iter = 1
         log = dict()
-        while len(features) > 1:
+        while len(features) >= 1:
 
             print(f"-------------- ITERATION {iter} -------------- ")
             print(f"Feature list: \n{self.features}\n")
@@ -231,8 +231,7 @@ class FeatureExtracter():
                          "d_min",
                          "w_max",
                          "min_to_max",
-                         "x_max",
-                         "noise_correlation"]
+                         "x_max"]
 
         r2_performance = self.evaluate_features(eval_dataset, regressor, folds)
         print(f"Reference initial R2: {r2_performance}\n")
@@ -272,3 +271,7 @@ class FeatureExtracter():
         _, V, _ = self.reconstructor.normalize_and_extract(X)
 
         return V
+
+
+class FeatureError(Exception):
+    pass

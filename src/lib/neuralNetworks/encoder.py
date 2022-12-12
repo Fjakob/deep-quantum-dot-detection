@@ -44,11 +44,12 @@ class ResidualEncoder(nn.Module):
         super().__init__()
         self.pool   = nn.MaxPool1d(3)
         self.drop = nn.Dropout(0.3)
-        self.resUnit1 = ResidualStack(1, 16, kernel_size=3)
-        self.resUnit2 = ResidualStack(16, 32, kernel_size=3)
-        self.resUnit3 = ResidualStack(32, 64, kernel_size=3)
-        self.resUnit4 = ResidualStack(64, 128, kernel_size=3)
-        self.dense    = nn.Linear(128*12, latent_dim)
+        self.resUnit1 = ResidualStack(1, 4, kernel_size=3)
+        self.resUnit2 = ResidualStack(4, 16, kernel_size=3)
+        self.resUnit3 = ResidualStack(16, 32, kernel_size=3)
+        self.resUnit4 = ResidualStack(32, 64, kernel_size=3)
+        self.dense    = nn.Linear(64*12, latent_dim)
+        
 
     def forward(self, x):
         x = self.pool(self.resUnit1(x))       

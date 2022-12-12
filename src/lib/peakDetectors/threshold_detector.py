@@ -1,8 +1,7 @@
 import numpy as np
-import pickle
 from scipy.optimize import minimize
 
-from src.lib.peakDetectors.peak_detector import PeakDetector
+from src.lib.baseClasses.peak_detector import PeakDetector
 
 class ThresholdDetector(PeakDetector):
     def __init__(self, threshold=0.0):

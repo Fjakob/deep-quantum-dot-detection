@@ -6,9 +6,10 @@ base:
 data:
     path_data: 'datasets\labeled\data_w30_labeled.pickle'
     path_data_augmented: 'datasets\labeled\data_w30_labeled_augmented.pickle'
+    path_data_augmented_large: 'datasets\labeled\data_w30_labeled_augmented.pickle'
     path_validation_data: 'datasets\labeled\data_w30_labeled_validation.pickle'
     data_setting:
-        add_artificial: False
+        add_artificial: True
         artificial_samples: 20
         max_artificial_peak_height: 15
 
@@ -17,9 +18,9 @@ reconstructor:
     # select type betweeen autoencoder or pca
     type: autoencoder
     autoencoder:
-        latent_dim: 32
-        epsilon:    0.000000000001
-        model_path: models/autoencoders/epsilon_1e-12
+        latent_dim: 16
+        epsilon:    0.000000000001 # = 1e-12 (avoid interpretation as string)
+        model_path: models/autoencoders
     pca:
         latent_dim: 512
         model_path: models/pca
@@ -34,20 +35,28 @@ detector:
 
 
 neural_net:
-    hidden_neurons: 100
-    dropout:        0.0
-    batch_size:     64
-    learning_rate:  0.01
-    epochs:         200
-    self_normalize: False
-    epsilon:        0.02
+    deterministic:
+        var_prediction: False
+        self_normalize: False
+        hidden_neurons: 100
+        dropout:        0.00
+        batch_size:     64
+        learning_rate:  0.01
+        epochs:         200
+        epsilon_pred:   0.01
+        epsilon_loss:   0
+    probabilistic:
+        var_prediction: True
+        self_normalize: False
+        hidden_neurons: 15
+        dropout:        0.00
+        batch_size:     512
+        learning_rate:  0.001
+        epochs:         5000
+        epsilon_pred:   0.000000001
+        epsilon_loss:   0.0000001
 
 
-results:
-    model_path: 'models\classifiers'
-    plot_settings:  
-        plot_path: 'reports\plots'
-        plot_format: 'png'
 
 
     

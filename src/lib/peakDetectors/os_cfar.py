@@ -1,8 +1,7 @@
 import numpy as np
-import pickle
 from scipy.optimize import minimize
 
-from src.lib.peakDetectors.peak_detector import PeakDetector
+from src.lib.baseClasses.peak_detector import PeakDetector
 
 
 class OS_CFAR(PeakDetector):
@@ -21,6 +20,7 @@ class OS_CFAR(PeakDetector):
         self.T = T
         self.k = k
         self.N_protect = N_protect
+        self.opt_hist = []
 
 
     def detect(self, x):
@@ -69,8 +69,10 @@ class OS_CFAR(PeakDetector):
                                      [100, 6, 60],
                                      [300, 4, 10]])
 
+        self.opt_hist = []
+
         minimize(self.cost_function, w_init, method='nelder-mead', args=(X, Y), 
-                  options={'xatol': 1e-2, 'disp': False, 'initial_simplex': initial_simplex})
+                  options={'maxiter': 20, 'disp': False, 'initial_simplex': initial_simplex})
         
         print(f"Optimized Parameters: N={self.N}, T={self.T}, N_protect={self.N_protect}")
 
@@ -87,12 +89,13 @@ class OS_CFAR(PeakDetector):
         # check constraint violation
         if (w <= 0).any() or w[0] >= len(X[0]):
             print("Invalid parameters, restart.\n")
-            return 1.0
+            return 30.0
 
         # determine accuracy with updated parameters
         self.N, self.T, self.N_protect = N, T, N_protect
-        acc = self.accuracy(X, Y)
+        acc = self.accuracy(X, Y) 
+        self.opt_hist.append([acc, N, T, N_protect])
         print(f"Achieved accuracy: {acc}\n")
-        return -acc + 0.1*N/len(X[0])
+        return acc + N/1024
 
 

@@ -1,9 +1,8 @@
 import numpy as np
 import pickle
 import scipy.sparse.linalg as linalg
-import matplotlib.pyplot as plt
 
-from src.lib.featureExtraction.latent_extractor import LatentExtracter
+from src.lib.baseClasses.latent_extractor import LatentExtracter
 
 
 class PCA(LatentExtracter):

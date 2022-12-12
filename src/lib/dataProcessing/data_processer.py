@@ -134,12 +134,20 @@ class DataProcesser():
             return X       
 
 
-    def create_regression_data(self, w_range, txt_dir, return_peak_count=False,
+    def create_regression_data(self, w_range, txt_dir, file_ending=None, return_peak_count=False,
                                 show_statistics=True, saving_path=None,
                                 augment=False, space_shifts=5, mirroring=True):
+        """  
+        1) Find all spectra with the wavelength range w_range
+        2) Read out txt of labels
+        3) Average the labels from all users, assigned to individual labels
+        4) Optional: augment with space_shifts and mirroring
+        """
 
         ################## TXT READOUT: #######################
         label_dir = txt_dir + f"\\w{w_range}"
+        if file_ending is not None:
+            label_dir += file_ending
         user_dictionary, spectrum_storage = dict(), dict()
 
         for file in os.listdir(label_dir):
@@ -197,12 +205,11 @@ class DataProcesser():
                     labels.append(label)
                     peak_counts.append(peak_count)
 
-            ### store the mean
             y = np.mean(labels)
             peaks = round(np.mean(peak_counts))
             X.append(x), Y.append(y), P.append(peaks)
 
-        X, Y = np.asarray(X), np.asarray(Y)
+        X, Y, P = np.asarray(X), np.asarray(Y), np.asarray(P)
         file_name = f'data_w{w_range}_labeled'
 
         ### augment data with given space shifts
@@ -220,6 +227,8 @@ class DataProcesser():
         
         ### save data or return directly
         if saving_path is not None:
+            if file_ending is not None:
+                file_name += file_ending
             if not return_peak_count:
                 self.save((X,Y), saving_path, file_name)
             else:

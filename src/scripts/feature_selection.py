@@ -35,18 +35,19 @@ def load_dataset(path, artif_data_setup):
     return X, Y
 
 
-def main():
+def select_explainable_features():
 
     mode = 'forward_selection'
     #mode = 'backward_elimination'
 
+    ### set false to display obtained results saved into log
     retrain = True
 
     if retrain:
         ### setup
         dataset_path  = 'datasets\labeled\data_w30_labeled.pickle'
-        data_settings = {'add_artificial': True,
-                         'artificial_samples': 20,
+        data_settings = {'add_artificial': False,
+                         'artificial_samples': 15,
                          'max_artificial_peak_height': 15}
 
         hyperparams   = {'hidden_neurons': 100,
@@ -55,18 +56,19 @@ def main():
                          'learning_rate':  0.01,
                          'epochs':         100,
                          'self_normalize': False,
-                         'epsilon':        0.01}
+                         'epsilon_pred':   1e-12,
+                         'var_prediction': False}
 
-        latent_dim = 32
+        latent_dim = 16
 
         ### preparation
         reconstructor = Autoencoder(latent_dim, epsilon=1e-12)
-        peak_detector = OS_CFAR(N=190, T=6.9, N_protect=20)
-        feature_extracter = FeatureExtracter(peak_detector, reconstructor, seed=42)
+        peak_detector = OS_CFAR(N=193, T=6.54, N_protect=25)
         neural_net = NeuralNetwork(hyperparams)
 
         X, Y = load_dataset(dataset_path, data_settings)
-        reconstructor.load_model(f'models/autoencoders/epsilon_1e-12/autoencoder{latent_dim}.pth')
+        reconstructor.load_model(f'models/autoencoders/autoencoder{latent_dim}.pth')
+        feature_extracter = FeatureExtracter(peak_detector, reconstructor, seed=42)
 
         ### selection algorithm
         if mode == 'forward_selection':
@@ -109,13 +111,58 @@ def main():
     plt.plot(np.asarray(max_perf)[:,0], np.asarray(max_perf)[:,1], 'k', zorder=1)
 
     plt.grid()
-    plt.ylim((0.65, 1))
+    plt.ylim((0.45, 1))
     plt.xlabel('Iteration')
     plt.ylabel('R2 score')
     plt.title(title)
     plt.show()
 
 
+def select_latent_features():
+    ### setup
+    dataset_path  = 'datasets\labeled\data_w30_labeled.pickle'
+    data_settings = {'add_artificial': True,
+                    'artificial_samples': 15,
+                    'max_artificial_peak_height': 15}
+
+    # (good hyperparams for backward elimination, adjust for forward selection)
+    # (add 20 artificials)
+    hyperparams   = {'hidden_neurons': 50,
+                    'dropout':        0.0,
+                    'batch_size':     64,
+                    'learning_rate':  0.01,
+                    'epochs':         100,
+                    'self_normalize': False,
+                    'epsilon_pred':   1e-12,
+                    'var_prediction': False}
+
+    neural_net = NeuralNetwork(hyperparams)
+
+    X, Y = load_dataset(dataset_path, data_settings)
+
+    log = list()
+    latent_dims = [8,16,24,32,48,64]
+    for latent_dim in latent_dims:
+
+        print(f"Loading model p={latent_dim}.")
+        reconstructor = Autoencoder(latent_dim, epsilon=1e-12)
+        reconstructor.load_model(f'models/autoencoders/autoencoder{latent_dim}.pth')
+        feature_extracter = FeatureExtracter(None, reconstructor, seed=42)
+        feature_extracter.set_features('latent_representation')
+        r2 = feature_extracter.evaluate_features(eval_dataset=(X, Y), regressor=neural_net, folds=5)
+
+        log.append(r2)
+        print(f'R2: {r2:.3f}\n')
+
+    plt.figure()
+    plt.plot(latent_dims, log,'-*')
+    plt.xlabel('Latent dim')
+    plt.ylabel('R2 score')
+    plt.grid()
+    plt.show()
+
+
 if __name__ == "__main__":
-    main()
+    select_explainable_features()
+    #select_latent_features()
 
