@@ -142,4 +142,7 @@ Python unit tests have been included to test the library functionality in:
 However, test cases for the whole library yet have to be developed for proper code coverage.
 
 
+Underlying Master Thesis can be read in
+
+	https://drive.google.com/file/d/1si8qEQXCN--jys12QEcQrJPgqIdLHyFY/view?usp=sharing
    
