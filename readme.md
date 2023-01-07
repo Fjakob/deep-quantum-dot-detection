@@ -71,7 +71,7 @@ For training: Google colab notebook exists in
 	notebooks/train_autoencoder.ipynb
 
 which can be uploaded to colab.research.google.com. 
-In the colab, upload the dataset created in the last step (might take 20 minutes.)
+In the colab, upload the dataset created in the last step (might take some time.)
 
 In the notebook, network structures and latent dimensions can be specified.
 After training, the model parameters autoencoder.pth and learning curves will be downloaded.
