@@ -144,7 +144,7 @@ However, test cases for the whole library yet have to be developed for proper co
 
 ################### THEORY BEHIND ###########################
 
-The underlying Master Thesis can be read in
+The underlying Master Thesis can be read using the link
 
 https://drive.google.com/file/d/1si8qEQXCN--jys12QEcQrJPgqIdLHyFY/view?usp=sharing
    
