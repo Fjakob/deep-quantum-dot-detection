@@ -2,11 +2,9 @@
 
 ### First step
 
-Run 
+To install all dependencies, run
 	
 	pip install -r requirements.txt
-
-to install all required libraries.
 
 
 ### Data set creation
