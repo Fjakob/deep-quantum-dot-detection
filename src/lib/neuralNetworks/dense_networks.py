@@ -5,7 +5,6 @@ from sklearn.metrics import r2_score
 from torch import cuda, nn, optim, tensor
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
-import tikzplotlib
 
 
 class VanillaNeuralNetwork():
@@ -13,7 +12,7 @@ class VanillaNeuralNetwork():
     def __init__(self, hyperparams):
         super().__init__()
         self.hyperparams = hyperparams
-        self.device = 'cpu' #'cuda' if cuda.is_available() else 'cpu'
+        self.device = 'cuda' if cuda.is_available() else 'cpu'
         self.network = None
 
         torch.manual_seed(42)
