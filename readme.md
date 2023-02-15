@@ -31,12 +31,9 @@ label `num_peaks` `rating` date `date` user `user` file `folder/filename`
 
 txt files of this form can be created by using the Labeling App in `src/apps/`
 
-The datasets can be created by using the script
-
-	src/scripts/create_datasets.py
-
-by using the DataProcesser.create_regression_data(...) method.
-See documentation in `src/lib/dataProcessing/data_processer.py`
+The datasets can be created by using the script `src/scripts/create_datasets.py`
+by using the `DataProcesser.create_regression_data(...)` method.
+See comments in `src/lib/dataProcessing/data_processer.py`.
 
 Datasets get automatically saved into `datasets/labeled/` as pickle file.
 
