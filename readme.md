@@ -1,4 +1,4 @@
-# Library for QD spectrum annotation/rating.
+# DQDD - Deep Quantum Dot Detection
 
 ### First step
 
