@@ -1,6 +1,14 @@
 # DQDD - Deep Quantum Dot Detection
 
-### First step
+DQDD - A python library for easy and convenient automation of quantum dot fabrication. 
+
+### Background
+
+Quantum dots are emerging as a key technology to realize Quantum Computing, Quantum Communication, and many other quantum application technologies. Efficient and scalable fabrication will thus become key for solving challenging 21st century tasks in this industry. This library aims at automating the assessment of individual quantum dots in a precise, quantifiable and reproducable way with the help of Advanced Evaluation Methods and Deep Learning. 
+
+![plot](/reports/graphics/library_concept_drawing.PNG)
+
+### Requirements
 
 To install all dependencies, run
 	
@@ -93,4 +101,6 @@ However, test cases for the whole library yet have to be developed for proper co
 The underlying Master Thesis will be published eventually and linked here.
 
 
-   
+### Acknoledgement
+
+This work has been enabled by the research project [GRK 2642: "Towards Graduate Experts in Photonic Quantum Technologies"](https://www.pqe.uni-stuttgart.de/).
