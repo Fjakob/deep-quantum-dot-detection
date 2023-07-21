@@ -2,20 +2,36 @@
 
 DQDD - A python library for easy and convenient automation of quantum dot fabrication. 
 
-### Background
+## Background
 
-Quantum dots are emerging as a key technology to realize Quantum Computing, Quantum Communication, and many other quantum application technologies. Efficient and scalable fabrication will thus become key for solving challenging 21st century tasks in this industry. This library aims at automating the assessment of individual quantum dots in a precise, quantifiable and reproducable way with the help of Advanced Evaluation Methods and Deep Learning. 
+Quantum dots (QDs) are emerging as a key technology to realize Quantum Computing, Quantum Communication, and many other quantum application technologies. Efficient and scalable fabrication will thus become key for solving challenging 21st century tasks in this industry. This library aims at automating the assessment of individual quantum dots in a precise, quantifiable and reproducable way with the help of advanced evaluation methods and Deep Learning. 
 
-![plot](/reports/graphics/library_concept_drawing.PNG)
 
-### Requirements
+## Installation and Requirements
 
 To install all dependencies, run
 	
 	pip install -r requirements.txt
 
+To speed up your device, torch CUDA extensions can be optionally downloaded. For this, check your CUDA-Version by running
 
-### Data set creation
+	nvidia-smi
+
+in the command line. Then follow the [torch installation guidelines](https://pytorch.org/) from the website.
+
+
+## Library Usage
+
+This library implements a whole end-to-end machine learning pipeline, beginning with raw QD spectral data up to a deployable stochastic model. The main features include
+
+* Data labeling with an interactive App
+* Automated feature leaning with an Autoencoder
+* Manual feature design by implemented CFAR detectors and selection algorithms
+* Regression model learning with a stochastic neural network 
+
+[!plot](reports/graphics/library_concept_drawing.png)
+
+### Data labeling
 
 Requires:
 
@@ -96,9 +112,9 @@ Python unit tests have been included to test the library functionality in `tests
 However, test cases for the whole library yet have to be developed for proper code coverage.
 
 
-### THEORY BEHIND
+### Documentation
 
-The underlying Master Thesis will be published eventually and linked here.
+The corresponding publication explaining the algorithms will be announced here upon it's publishment.
 
 
 ### Acknoledgement

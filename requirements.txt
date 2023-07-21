@@ -1,5 +1,6 @@
-scipy
-tqdm
-PyYAML
-torch
-torchsummary
+scipy==1.10.1
+scikit-learn==1.2.2
+tqdm==4.65.0
+PyYAML==6.0
+torch==2.0.0+cpu
+torchsummary==1.5.1
