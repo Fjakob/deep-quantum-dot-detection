@@ -6,6 +6,8 @@ DQDD - A python library for easy and convenient automation of quantum dot fabric
 
 Quantum dots (QDs) are emerging as a key technology to realize Quantum Computing, Quantum Communication, and many other quantum application technologies. Efficient and scalable fabrication will thus become key for solving challenging 21st century tasks in this industry. This library aims at automating the assessment of individual quantum dots in a precise, quantifiable and reproducable way with the help of advanced evaluation methods and Deep Learning. 
 
+<img src="/reports/graphics/example_QDs.PNG">
+
 
 ## Installation and Requirements
 
@@ -29,7 +31,7 @@ This library implements a whole end-to-end machine learning pipeline, beginning 
 * Manual feature design by implemented CFAR detectors and selection algorithms
 * Regression model learning with a stochastic neural network 
 
-<img src="/reports/graphics/library_concept_drawing.PNG" width="1000">
+<img src="/reports/graphics/library_concept_drawing.PNG">
 
 ### Data labeling
 
