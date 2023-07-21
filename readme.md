@@ -29,7 +29,7 @@ This library implements a whole end-to-end machine learning pipeline, beginning 
 * Manual feature design by implemented CFAR detectors and selection algorithms
 * Regression model learning with a stochastic neural network 
 
-![plot](/reports/graphics/library_concept_drawing.PNG | width=80)
+<img src="/reports/graphics/library_concept_drawing.PNG" width="100" height="100">
 
 ### Data labeling
 
