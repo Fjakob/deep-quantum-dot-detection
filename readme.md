@@ -96,11 +96,11 @@ For the final model learning, a self-normalizing neural-network-based stochastic
 <img src="/reports/graphics/stochastic_regression.PNG">
 
 
-### Documentation
+## Documentation
 
 The corresponding publication explaining the algorithms and the citation will be announced here upon it's publishment.
 
 
-### Acknoledgement
+## Acknoledgement
 
 This project has been conducted as a student work enabled by the research project [GRK 2642: "Towards Graduate Experts in Photonic Quantum Technologies"](https://www.pqe.uni-stuttgart.de/).
