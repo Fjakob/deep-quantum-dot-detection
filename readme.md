@@ -114,9 +114,9 @@ However, test cases for the whole library yet have to be developed for proper co
 
 ### Documentation
 
-The corresponding publication explaining the algorithms will be announced here upon it's publishment.
+The corresponding publication explaining the algorithms and the citation will be announced here upon it's publishment.
 
 
 ### Acknoledgement
 
-This work has been enabled by the research project [GRK 2642: "Towards Graduate Experts in Photonic Quantum Technologies"](https://www.pqe.uni-stuttgart.de/).
+This project has been conducted as a student work enabled by the research project [GRK 2642: "Towards Graduate Experts in Photonic Quantum Technologies"](https://www.pqe.uni-stuttgart.de/).
