@@ -65,56 +65,40 @@ An example usage of the class is presented in the [test_dataloader unittest](/te
 
 ### Autoencoder Training
 
-Pre-trained autoencoder weights for spectra recorded over a wavelength range of 30 micrometers already exist in the [models](/models/autoencoders/) directory. However, for retraining, a respective Juypter Notebook [train_autoencoder.ipynb](/notebooks/train_autoencoder.ipynb) is provided, together with a [visualizing evaluation notebook](/notebooks/evaluate_training.ipynb).
+Pre-trained autoencoder weights for processing of spectra recorded over a wavelength range of 30 micrometers already exist in the [models](/models/autoencoders/) directory. For retraining however, e.g. for processing another class of spectra, a respective Juypter Notebook [train_autoencoder.ipynb](/notebooks/train_autoencoder.ipynb) is provided, together with a [visualizing evaluation notebook](/notebooks/evaluate_training.ipynb). The notebook is constructed for the use in [Google Colab](https://colab.research.google.com/?hl=de). Note that the network structure allways mirrors [encoder.py](/src/lib/neuralNetworks/encoder.py) and [decoder.py](/src/lib/neuralNetworks/decoder.py). 
 
-The notebook should be uploaded to [colab.research.google.com](colab.research.google.com). 
-In the colab, upload the dataset created in the last step (this might take some time).
+The autoencoder can be exploited for feature learning or feature construction. For example, the anomaly score (or the reconstruction error in other words) of the Spectrum is highly correlating with the Spectrum label.
 
-In the notebook, network structures and latent dimensions can be specified.
-After training, the model parameters autoencoder.pth and learning curves will be downloaded.
+<img src="/reports/graphics/correlation_label_vs_anomaly_score.PNG">
 
-Downloaded training curves must be moved to folder `reports/autoencoder_training_curves/`.
-Training curves can be evaluated in `notebooks/evaluate_training.ipynb`. 
-
-For deploying the autoencoder parameters in the library,m ake sure the network structure chosen in `train_autoencoder.py` matches the structures in `src/lib/neuralNetworks/(encoder/decoder).py` and `src/lib/featureExtraction/autoencoder.py`.
-
-Move downloaded model parameters to folder `models/autoencoders/`.
-
-Examples how to load model parameters are given in `src/scripts/autoencoder_selection.py`
+Also, the latent representation of the spectrum can be used as feature vector for a subsequent regression model input. For the optimal latent space search, a script [autoencoder_selection.py](/src/scripts/autoencoder_selection.py) is provided. 
 
 
-### LIBRARY USAGE
+### Feature Construction and Selection
 
-The whole library containing algorithms is contained in `src/lib/`.
+As mentioned, the anomaly score can be exploited as powerful feature. To construct more features, [peak detection algorithms](/src/lib/peakDetectors/) are implemented within the scope of this library. 
 
-Examples on how to use the library are given in the scripts `src/scripts`.
+<img src="/reports/graphics/peak_detection.PNG">
+
+An exemplary parameter optimization based on the labeled dataset for the popular [OS-CFAR detector](/src/lib/peakDetectors/os_cfar.py) peak detector is provided in the script [optimize_CFAR.py](/src/scripts/optimize_CFAR.py).
+
+Based on the peak detector and the autoencoder, several intuition based features can be derived. The [FeatureExtractor class](/src/lib/featureExtraction/feature_extractor.py) implements two feature selection algorithms based on a k-Fold cross validation and a neural network based minimal regressor, which is demonstrated in the [feature_selection.py](/src/scripts/feature_selection.py) script.
+
+<img src="/reports/graphics/feature_selection.PNG">
 
 
-### SCRIPT USAGE
+### Probabilistic Regression
 
-All scripts except for the regression scripts can be executed directly. Make sure 
-to execute all scripts while the root folder is the folder in which
-the whole project is contained. Visual Studio Code is suggested.
+For the final model learning, a self-normalizing neural-network-based stochastic regression model is used. Analogous to Gaussian Processes, this network is able to predict labels together with a normal distribution based standart deviation. A multivariate [regression script](/src/scripts/feature_regression.py) is provided, the settings can be adjusted within a [configuration YAML file](/src/scripts/config/config.yaml). The script is executed with the syntax
 
-To execute regression scripts, the config.yaml file has to be passed. Therefore, run 
-the script in the root folder using the command line like this:
+	python3 src/scripts/feature_regression.py --config src/scripts/config/config.yaml
 
-	python3 src/scripts/erecon_regression.py --config=src/scripts/config/config.yaml
-	python3 src/scripts/feature_regression.py --config=src/scripts/config/config.yaml
-	python3 src/scripts/feature_regression_augmented.py --config=src/scripts/config/config.yaml
-
-The parameters of every pipeline is unifiedly set and can be changed in `src/scripts/config/config.yaml`
-
-### TESTING 
-
-Python unit tests have been included to test the library functionality in `tests/`
-
-However, test cases for the whole library yet have to be developed for proper code coverage.
+<img src="/reports/graphics/stochastic_regression.PNG">
 
 
 ### Documentation
 
-The corresponding publication explaining the algorithms will be announced here upon it's publishment.
+The corresponding publication explaining the algorithms and the citation will be announced here upon it's publishment.
 
 
 ### Acknoledgement
