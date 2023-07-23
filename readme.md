@@ -24,10 +24,10 @@ in the command line. Then follow the [torch installation guidelines](https://pyt
 
 ## Library Usage
 
-This library implements a whole end-to-end machine learning pipeline, beginning with raw QD spectral data up to a deployable stochastic model. The main features include
+This library implements a whole end-to-end machine learning pipeline, beginning with raw QD spectral data up to a deployable stochastic prediction model. The main features include
 
 * Data labeling with an interactive App
-* Automated feature leaning with an Autoencoder
+* Automated feature leaning with an off-the-shelf Autoencoder
 * Manual feature design by implemented CFAR detectors and selection algorithms
 * Regression model learning with a stochastic neural network 
 
@@ -35,42 +35,40 @@ This library implements a whole end-to-end machine learning pipeline, beginning 
 
 ### Data labeling
 
-Requires:
+Outline is a raw database, which is a directory of raw QD spectral measurements, saved as `txt` or `dat` files, whereas the spectra should have been recorded over the same frequency range.
 
-1.) A database folder on the PC containing of the form
+The [apps folder](/src/apps/) contains different versions of a labeling GUI to create datasets for supervised learning. The interface allows to select folders within the OS explorer, in example the raw database, and saves the spectra with all information in a resulting `txt` file, which can be saved in the [labels_txt](/datasets/labeled/labels_txt/) directory for later usage. The versions include
 
-	|-- folder1
-	|	|-- filename1.dat     
-	|	|-- filename2.dat
-	|	|-- ...
-	|
-	|-- folder2
-	|	|-- ...
-	|
-	|-- ...
+| Version  | Description |
+| ------------- | ------------- |
+| v3  | Categorical rating of deterministic selected spectra within an opened directory |
+| v4  | Categorical rating of randomly selected spectra within a directory and all subdirectories |
+| v5  | Continuous rating of randomly selected spectra within a directory and all subdirectories |
 
-2.) A folder containing labeled spectra in the directory `datasets/labeled/labels_txt/`
+The GUI allows for
 
-Entries in that txt files should have following form:
+* enter of a categorical rating in the range from (--) to (++) in v3/v4 or as continuous value in the range (0, 1) in v5
+* enter of the number of Peaks visible in that spectrum.
 
-label `num_peaks` `rating` date `date` user `user` file `folder/filename`
+<img src="/reports/graphics/label_app.PNG">
 
-txt files of this form can be created by using the Labeling App in `src/apps/`
+Both information are exploited in the following algorithms.
 
-The datasets can be created by using the script `src/scripts/create_datasets.py`
-by using the `DataProcesser.create_regression_data(...)` method.
-See comments in `src/lib/dataProcessing/data_processer.py`.
+Once sufficiently many spectra have been assessed and saved into the [labels_txt](/datasets/labeled/labels_txt/) directory, the [create_datasets.py](/src/scripts/create_datasets.py) script can be exploited to create the respective numpied pickle objects representing all data pairs by reading out the raw data base. Additionally, the [create_datasets.py](/src/scripts/create_datasets.py) can be used to create a dataset for unsupervised learning, which is relevant for the Autoencoder training for example. Features of the [DataProcesser](/src/lib/dataProcessing/data_processer.py) class include
 
-Datasets get automatically saved into `datasets/labeled/` as pickle file.
+* readout of the raw database, sorting for wavelength ranges
+* noise and peak filtering of each sample
+* data augmentation by shifting and mirroring
+
+An example usage of the class is presented in the [test_dataloader unittest](/tests/test_dataloader.py).
+
 
 ### Autoencoder Training
 
-The datasets can be created by using the script `src/scripts/create_datasets.py` by using the `DataProcesser.create_unsupervised_data(...)` method.
-See the comments in `src/lib/dataProcessing/data_processer.py`
+Pre-trained autoencoder weights for spectra recorded over a wavelength range of 30 micrometers already exist in the [models](/models/autoencoders/) directory. However, for retraining, a respective Juypter Notebook [train_autoencoder.ipynb](/notebooks/train_autoencoder.ipynb) is provided, together with a [visualizing evaluation notebook](/notebooks/evaluate_training.ipynb).
 
-For training: Google colab notebook exists in `notebooks/train_autoencoder.ipynb`
-which can be uploaded to colab.research.google.com. 
-In the colab, upload the dataset created in the last step (might take some time.)
+The notebook should be uploaded to [colab.research.google.com](colab.research.google.com). 
+In the colab, upload the dataset created in the last step (this might take some time).
 
 In the notebook, network structures and latent dimensions can be specified.
 After training, the model parameters autoencoder.pth and learning curves will be downloaded.
