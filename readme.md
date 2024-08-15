@@ -113,6 +113,6 @@ This project has been conducted as a student work enabled by the research projec
 [git-shield]: https://img.shields.io/badge/GIT-gray?style=for-the-badge&logo=GITHUB
 [git-url]: https://github.com/Fjakob/deep-quantum-dot-detection
 [doi-shield]: https://img.shields.io/badge/doi-blue?logo=doi
-[doi-url]: https://www.nature.com/articles/s41598-024-54615-7#citeas
+[doi-url]: https://doi.org/10.1038/s41598-024-54615-7
 [linkedin-shield]: https://img.shields.io/badge/LINKEDIN-blue?style=for-the-badge&logo=LinkedIn
 [linkedin-url]: https://www.linkedin.com/in/fabian-jakob/
