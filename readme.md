@@ -1,6 +1,15 @@
+<!-- PROJECT SHIELDS -->
+[![GIT][git-shield]][git-url]
+[![DOI][doi-shield]][doi-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
 # DQDD - Deep Quantum Dot Detection
 
 DQDD - A python library for easy and convenient automation of quantum dot fabrication. 
+
+Implementation of the paper
+
+> Corcione, E., Jakob, F., Wagner, L. et al. Machine learning enhanced evaluation of semiconductor quantum dots. Sci Rep 14, 4154 (2024).
 
 ## Background
 
@@ -96,11 +105,14 @@ For the final model learning, a self-normalizing neural-network-based stochastic
 <img src="/reports/graphics/stochastic_regression.PNG">
 
 
-## Documentation
-
-The corresponding publication explaining the algorithms and the citation will be announced here upon it's publishment.
-
-
 ## Acknoledgement
 
 This project has been conducted as a student work enabled by the research project [GRK 2642: "Towards Graduate Experts in Photonic Quantum Technologies"](https://www.pqe.uni-stuttgart.de/).
+
+
+[git-shield]: https://img.shields.io/badge/GIT-gray?style=for-the-badge&logo=GITHUB
+[git-url]: https://github.com/Fjakob/deep-quantum-dot-detection
+[doi-shield]: https://img.shields.io/badge/doi-blue?logo=doi
+[doi-url]: https://www.nature.com/articles/s41598-024-54615-7#citeas
+[linkedin-shield]: https://img.shields.io/badge/LINKEDIN-blue?style=for-the-badge&logo=LinkedIn
+[linkedin-url]: https://www.linkedin.com/in/fabian-jakob/
