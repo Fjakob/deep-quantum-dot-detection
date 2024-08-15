@@ -1,6 +1,6 @@
 <!-- PROJECT SHIELDS -->
-[![GIT][git-shield]][git-url]
 [![DOI][doi-shield]][doi-url]
+[![GIT][git-shield]][git-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 # DQDD - Deep Quantum Dot Detection
